@@ -2,6 +2,7 @@
 using s = SFML.System;
 using g = SFML.Graphics;
 using w = SFML.Window;
+using gas = Cards;
 namespace Main
 {
     class ProgramMain
