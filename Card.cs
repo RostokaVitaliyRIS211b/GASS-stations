@@ -4,7 +4,7 @@ using g = SFML.Graphics;
 using w = SFML.Window;
 namespace Cards
 {
-    internal abstract class Card : g.Drawable
+    internal class Card : g.Drawable
     {
         
         public g.Sprite sprite { get; set; }
@@ -19,7 +19,7 @@ namespace Cards
             sprite = new g.Sprite(card.sprite.Texture);
             player = card.player;
         }
-        abstract public void Parse(string name);
+        virtual public void Parse(string name) { }
         public void Draw(g.RenderTarget target, g.RenderStates states)
         {
             target.Draw(sprite, states);
