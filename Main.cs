@@ -18,6 +18,7 @@ namespace Main
     class MainWindow
     {
         c.Card catchicng = null;
+        s.Vector2f catching_pos = new s.Vector2f();
         sus.Random rand = new sus.Random();
         public int width_screen = 1280, height_screen = 720,count_of_players = 1,size_of_colod=3,player=1;
         g.RenderWindow Window;
@@ -104,9 +105,36 @@ namespace Main
                 foreach (c.Card card in map)
                     card.sprite.Position += movement;
             }
+            if (catchicng != null & (catchicng as c.Doroga != null | catchicng as c.GasStation != null))
+                catchicng.sprite.Position = new s.Vector2f(e.X, e.Y);
         }
         void Window_MouseButtonPressed(object sender,w.MouseButtonEventArgs e)
         {
+            if(catchicng == null)
+            {
+                foreach (c.Card card in colods[player - 1])
+                    if (card.sprite.GetGlobalBounds().Contains(e.X, e.Y))
+                    {
+                        catchicng = card;
+                        catching_pos = card.sprite.Position;
+                        break;
+                    }
+            }
+            else
+            {
+                if(catchicng as c.Doroga!=null)
+                {
+                    
+                }
+                if(catchicng as c.GasStation!=null)
+                {
+                    
+                }
+                catchicng.sprite.Position = catching_pos;
+                catchicng = null;
+
+            }
+            
 
         }
         void Window_KeyPressed(object sender,w.KeyEventArgs e)
