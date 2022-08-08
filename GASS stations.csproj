@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
+    <Compile Include="line.cs" />
     <Compile Include="Main.cs" />
   </ItemGroup>
   <ItemGroup>

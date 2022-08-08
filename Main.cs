@@ -4,6 +4,7 @@ using g = SFML.Graphics;
 using w = SFML.Window;
 using c = Cards;
 using scg = System.Collections.Generic;
+using l = Lines;
 namespace Main
 {
     class ProgramMain
@@ -25,6 +26,7 @@ namespace Main
         scg.List<scg.List<c.Card>> colods = new scg.List<scg.List<c.Card>>();
         scg.List<c.Card> map = new scg.List<c.Card>();
         scg.List<c.Card> way = new scg.List<c.Card>();
+        scg.List<l.Line> grid = new scg.List<l.Line>();
         string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_4_1_2.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_4_1.png", "images/road_3_4_1.png", "images/car_stream.png" };
         string [] gasstations = { "images/gas_station_1_red.png", "images/gas_station_2_red.png", "images/gas_station_3_red.png", "images/gas_station_1_blue.png", "images/gas_station_2_blue.png", "images/gas_station_3_blue.png", "images/gas_station_1_green.png", "images/gas_station_2_green.png", "images/gas_station_3_green.png", "images/gas_station_1_orange.png", "images/gas_station_2_orange.png", "images/gas_station_3_orange.png" };
         s.Vector2i mouse_pos1 = new s.Vector2i();
@@ -45,20 +47,21 @@ namespace Main
             start.sprite.Position = new s.Vector2f(width_screen / 2, height_screen / 2);
             start.Parse("1");
             map.Add(start);
+            create_coords_grid();
             while(Window.IsOpen)
             {
-                
                 Window.Clear(g.Color.White);
-                foreach (c.Card card in colods[player - 1])
-                    Window.Draw(card);
                 foreach (c.Card card in map)
+                    Window.Draw(card);
+                foreach (l.Line line in grid)
+                    Window.Draw(line);
+                foreach (c.Card card in colods[player - 1])
                     Window.Draw(card);
                 Window.DispatchEvents();
                 mouse_pos1 = w.Mouse.GetPosition(Window);
                 Window.Display();
             }
         }
-
         void initialize_colods()
         {
             for(int i=0;i<count_of_players;++i)
@@ -108,6 +111,7 @@ namespace Main
                 s.Vector2f movement = new s.Vector2f(e.X-mouse_pos1.X,e.Y-mouse_pos1.Y);
                 foreach (c.Card card in map)
                     card.sprite.Position += movement;
+                create_coords_grid();
             }
             if (catchicng != null & (catchicng as c.Doroga != null | catchicng as c.GasStation != null))
                 catchicng.sprite.Position = new s.Vector2f(e.X, e.Y);
@@ -128,12 +132,13 @@ namespace Main
             {
                 if(catchicng as c.Doroga!=null)
                 {
-                    
+
                 }
                 if(catchicng as c.GasStation!=null)
                 {
                     
                 }
+                //sus.Console.WriteLine("coords = {0}", convert_coords(catchicng));
                 catchicng.sprite.Position = catching_pos;
                 catchicng = null;
 
@@ -155,9 +160,64 @@ namespace Main
                 c.Doroga dor = catchicng as c.Doroga;
                 dor.rotate();
             }
-                
+            
             
         }
-
+        void create_coords_grid()
+        {
+            grid.Clear();
+            float x = 0, y = 0,side=100f * map[0].sprite.Scale.X;
+            g.Color color = new g.Color(0, 255, 255);
+            for (x = map[0].sprite.Position.X - side/2 ;x>0;x -= side)
+            {
+                l.Line line = new l.Line();
+                line.point_one = new s.Vector2f(x, 0);
+                line.point_two = new s.Vector2f(x, height_screen);
+                line.color = color;
+                grid.Add(line);
+            }
+            for (x = map[0].sprite.Position.X + side/2; x < width_screen; x += side)
+            {
+                l.Line line = new l.Line();
+                line.point_one = new s.Vector2f(x, 0);
+                line.point_two = new s.Vector2f(x, height_screen);
+                line.color = color;
+                grid.Add(line);
+            }
+            for (y = map[0].sprite.Position.Y - side/2 ; y > 0 ;y -= side)
+            {
+                l.Line line = new l.Line();
+                line.point_one = new s.Vector2f(0, y);
+                line.point_two = new s.Vector2f(width_screen, y);
+                line.color = color;
+                grid.Add(line);
+            }
+            for (y = map[0].sprite.Position.Y + side / 2; y < height_screen; y += side)
+            {
+                l.Line line = new l.Line();
+                line.point_one = new s.Vector2f(0, y);
+                line.point_two = new s.Vector2f(width_screen, y);
+                line.color = color;
+                grid.Add(line);
+            }
+        }
+        s.Vector2f convert_coords(c.Card card)
+        {
+            float side = 100 * map[0].sprite.Scale.X;
+            s.Vector2f pos = new s.Vector2f();
+            foreach(l.Line line in grid)
+                if(card.sprite.Position.X - line.point_one.X<0)
+                {
+                    pos.X = line.point_one.X-side/2;
+                    break;
+                }
+            foreach (l.Line line in grid)
+                if (card.sprite.Position.Y - line.point_one.Y < 0)
+                {
+                    pos.Y = line.point_one.Y - side/2;
+                    break;
+                }
+            return pos;
+        }
     }
 }
