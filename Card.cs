@@ -20,6 +20,7 @@ namespace Cards
             player = card.player;
         }
         virtual public void Parse(string name) { }
+        virtual public bool can_i_set (Card card) { return true; }
         public void Draw(g.RenderTarget target, g.RenderStates states)
         {
             target.Draw(sprite, states);
@@ -35,12 +36,81 @@ namespace Cards
             way3 = false;
             way4 = false;
         }
+        public override bool can_i_set(Card card)
+        {
+            bool flag = true;
+            if(card as Doroga!=null)
+            {
+                var dorg = card as Doroga;
+                if (dorg.sprite.Position.X - sprite.Position.X > 0 )
+                {
+                    flag = way2 == dorg.way4;
+                    //sus.Console.WriteLine("first {0}", flag);
+                }
+                    
+                if (dorg.sprite.Position.X - sprite.Position.X < 0 )
+                {
+                    flag = way4 == dorg.way2;
+                    //sus.Console.WriteLine("second {0}", flag);
+                }
+
+                if (dorg.sprite.Position.Y - sprite.Position.Y > 0)
+                { 
+                    flag = way3 == dorg.way1;
+                    //sus.Console.WriteLine("thirst {0}", flag);
+                }
+                if (dorg.sprite.Position.Y - sprite.Position.Y < 0 )
+                {
+                    flag = way1 == dorg.way3;
+                    //sus.Console.WriteLine("fourust {0}", flag);
+                }
+                    
+            }
+            else
+            {
+                if (card.sprite.Position.X - sprite.Position.X > 0)
+                    flag = !way2;
+                if (card.sprite.Position.X - sprite.Position.X < 0)
+                    flag = !way4;
+                if (card.sprite.Position.Y - sprite.Position.Y > 0)
+                    flag = !way3;
+                if (card.sprite.Position.Y - sprite.Position.Y < 0)
+                    flag = !way1;
+            }
+            if (card.sprite.Position.Equals(sprite.Position))
+                flag = false;
+            return flag;
+        }
         public override void Parse(string name)
         {
             way1 = name.Contains("1");
             way2 = name.Contains("2");
             way3 = name.Contains("3");
             way4 = name.Contains("4");
+        }
+        public bool can_i_way(Doroga card)
+        {
+            bool flag=false;
+            if (card.sprite.Position.X - sprite.Position.X > 0)
+            {
+                flag = way1 == true & card.way4 == true;
+            }
+
+            if (card.sprite.Position.X - sprite.Position.X < 0)
+            {
+                flag = way4 == true & card.way1 == true;
+            }
+
+            if (card.sprite.Position.Y - sprite.Position.Y > 0)
+            {
+                flag = way3 == true & card.way1 == true;
+            }
+            if (card.sprite.Position.Y - sprite.Position.Y < 0)
+            {
+                flag = way1 == true & card.way3 == true;
+            }
+            //sus.Console.WriteLine("fivest {0}", flag);
+            return flag;
         }
         public void rotate()
         {
@@ -57,6 +127,11 @@ namespace Cards
         public GasStation() : base()
         {
             level = 0;
+        }
+        public override bool can_i_set(Card card)
+        {
+            bool flag = true;
+            return flag;
         }
         public override void Parse(string name)
         {

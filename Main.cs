@@ -132,15 +132,48 @@ namespace Main
             {
                 if(catchicng as c.Doroga!=null)
                 {
-
+                    catchicng.sprite.Position = convert_coords(catchicng);
+                    scg.List<c.Card> prov = map.FindAll(card1 => card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0);
+                    bool flag = true;
+                    foreach (c.Card card in prov)
+                    {
+                        var XYI = card as c.Doroga;
+                        var XYI1 = card as c.GasStation;
+                        if (XYI == null)
+                            flag = XYI1.can_i_set(catchicng);
+                        else
+                            flag = XYI.can_i_set(catchicng);
+                        if (!flag)
+                            break;
+                    }
+                    if(flag)
+                    {
+                        flag = false;
+                        scg.List<c.Card> prov2 = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & card1 as c.Doroga!=null);
+                        foreach(c.Card card in prov2)
+                        {
+                            var dorg = card as c.Doroga;
+                            flag = dorg.can_i_way(catchicng as c.Doroga);
+                            if (flag)
+                                break;
+                        }
+                    }
+                    if(!flag)
+                        catchicng.sprite.Position = catching_pos;
+                    else 
+                    {
+                        map.Add(catchicng);
+                        colods[player-1].Remove(catchicng);
+                        set_coords_colod(colods[player - 1]);
+                    }
                 }
-                if(catchicng as c.GasStation!=null)
+                if (catchicng as c.GasStation != null)
                 {
-                    
+                    catchicng.sprite.Position = catching_pos;
                 }
-                //sus.Console.WriteLine("coords = {0}", convert_coords(catchicng));
-                catchicng.sprite.Position = catching_pos;
                 catchicng = null;
+                //sus.Console.WriteLine("coords = {0}", convert_coords(catchicng));
+
 
             }
             
