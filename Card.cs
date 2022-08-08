@@ -42,6 +42,14 @@ namespace Cards
             way3 = name.Contains("3");
             way4 = name.Contains("4");
         }
+        public void rotate()
+        {
+            bool buffway = way4 ;
+            way4 = way3;
+            way3 = way2;
+            way2 = way1;
+            way1 = buffway;
+        }
     }
     internal class GasStation : Card
     {
@@ -52,7 +60,12 @@ namespace Cards
         }
         public override void Parse(string name)
         {
-
+            if (name.Contains("1"))
+                level = 1;
+            if (name.Contains("2"))
+                level = 2;
+            if (name.Contains("3"))
+                level = 3;
         }
     }
     internal class Trafic : Card

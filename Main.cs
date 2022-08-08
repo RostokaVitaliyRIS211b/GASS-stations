@@ -33,6 +33,7 @@ namespace Main
             Window = new g.RenderWindow(new w.VideoMode((uint)width_screen,(uint)height_screen),"KING OF GAS STATIONS");
             Window.MouseMoved += Window_MouseMoved;
             Window.MouseButtonPressed +=Window_MouseButtonPressed;
+            Window.KeyPressed += Window_KeyPressed;
         }
         public void GameLoop()
         {
@@ -41,7 +42,8 @@ namespace Main
                 set_coords_colod(list);
             c.Doroga start = new c.Doroga { player = 0, sprite = new g.Sprite(new g.Texture(new g.Image("images/road_1.png"))) };
             start.sprite.Origin = new s.Vector2f(50, 50);
-            start.sprite.Position= new s.Vector2f(width_screen/2,height_screen/2);
+            start.sprite.Position = new s.Vector2f(width_screen / 2, height_screen / 2);
+            start.Parse("1");
             map.Add(start);
             while(Window.IsOpen)
             {
@@ -69,6 +71,7 @@ namespace Main
                     {
                         c.Doroga doroga = new c.Doroga{ player = i+1, sprite = new g.Sprite(new g.Texture(new g.Image(name)))};
                         doroga.sprite.Origin = new s.Vector2f(50, 50);
+                        doroga.Parse(name);
                         coloda.Add(doroga);
                     }
                     else
@@ -83,6 +86,7 @@ namespace Main
                     string name = gasstations[j];
                     c.GasStation gas = new c.GasStation { player = i + 1, sprite = new g.Sprite(new g.Texture(new g.Image(name))) };
                     gas.sprite.Origin = new s.Vector2f(50, 50);
+                    gas.Parse(name);
                     coloda.Add(gas);
                 }
                 colods.Add(coloda);
@@ -142,6 +146,17 @@ namespace Main
             var window = (g.RenderWindow)sender;
             if (e.Code == w.Keyboard.Key.Escape)
                 window.Close();
+            //sus.Console.WriteLine("keypr");
+            if (catchicng as c.Doroga!=null & e.Code==w.Keyboard.Key.R)
+            {
+                catchicng.sprite.Rotation += 90;
+                if (catchicng.sprite.Rotation == 360)
+                    catchicng.sprite.Rotation = 0;
+                c.Doroga dor = catchicng as c.Doroga;
+                dor.rotate();
+            }
+                
+            
         }
 
     }
