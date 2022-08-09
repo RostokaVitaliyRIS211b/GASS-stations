@@ -1,7 +1,5 @@
-﻿using sus = System;
-using s = SFML.System;
-using g = SFML.Graphics;
-using w = SFML.Window;
+﻿using g = SFML.Graphics;
+using sus = System;
 namespace Cards
 {
     internal class Card : g.Drawable
@@ -28,7 +26,7 @@ namespace Cards
     }
     internal class Doroga : Card
     {
-        bool way1, way2, way3, way4;
+        public bool way1, way2, way3, way4;
         public Doroga() : base() 
         {
             way1 = false;
@@ -131,6 +129,36 @@ namespace Cards
         public override bool can_i_set(Card card)
         {
             bool flag = true;
+            if(card as Doroga!=null)
+            {
+                var dorg = card as Doroga;
+                if (dorg.sprite.Position.X - sprite.Position.X > 0)
+                {
+                    flag = !dorg.way4;
+                    //sus.Console.WriteLine("first {0}", flag);
+                }
+
+                if (dorg.sprite.Position.X - sprite.Position.X < 0)
+                {
+                    flag = !dorg.way2;
+                    //sus.Console.WriteLine("second {0}", flag);
+                }
+
+                if (dorg.sprite.Position.Y - sprite.Position.Y > 0)
+                {
+                    flag = !dorg.way1;
+                    //sus.Console.WriteLine("thirst {0}", flag);
+                }
+                if (dorg.sprite.Position.Y - sprite.Position.Y < 0)
+                {
+                    flag = !dorg.way3;
+                    //sus.Console.WriteLine("fourust {0}", flag);
+                }
+            }
+            else
+                flag = true;
+            if (card.sprite.Position.Equals(sprite.Position))
+                flag = false;
             return flag;
         }
         public override void Parse(string name)

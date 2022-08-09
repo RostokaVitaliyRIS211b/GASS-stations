@@ -132,11 +132,13 @@ namespace Main
             {
                 if(catchicng as c.Doroga!=null)
                 {
+                    double side = 100 * map[0].sprite.Scale.X;
                     catchicng.sprite.Position = convert_coords(catchicng);
-                    scg.List<c.Card> prov = map.FindAll(card1 => card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0);
+                    scg.List<c.Card> prov = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0)& dlina(catchicng,card1)<=side);
                     bool flag = true;
                     foreach (c.Card card in prov)
                     {
+                        //sus.Console.WriteLine("count\n");
                         var XYI = card as c.Doroga;
                         var XYI1 = card as c.GasStation;
                         if (XYI == null)
@@ -148,8 +150,9 @@ namespace Main
                     }
                     if(flag)
                     {
+                        sus.Console.WriteLine("can i  way\n");
                         flag = false;
-                        scg.List<c.Card> prov2 = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & card1 as c.Doroga!=null);
+                        scg.List<c.Card> prov2 = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & card1 as c.Doroga!=null & dlina(catchicng, card1) <= side);
                         foreach(c.Card card in prov2)
                         {
                             var dorg = card as c.Doroga;
@@ -169,8 +172,31 @@ namespace Main
                 }
                 if (catchicng as c.GasStation != null)
                 {
-                    catchicng.sprite.Position = catching_pos;
+                    double side = 100 * map[0].sprite.Scale.X;
+                    catchicng.sprite.Position = convert_coords(catchicng);
+                    scg.List<c.Card> prov = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & (sus.Math.Abs(card1.sprite.Position.X - catchicng.sprite.Position.X) <= side & sus.Math.Abs(card1.sprite.Position.Y - catchicng.sprite.Position.Y) <= side));
+                    bool flag = true;
+                    foreach(c.Card card in prov)
+                    {
+                        var XYI = card as c.Doroga;
+                        var XYI1 = card as c.GasStation;
+                        if (XYI == null)
+                            flag = XYI1.can_i_set(catchicng);
+                        else
+                            flag = XYI.can_i_set(catchicng);
+                        if (!flag)
+                            break;
+                    }
+                    if(!flag | prov.Count==0)
+                        catchicng.sprite.Position = catching_pos;
+                    else
+                    {
+                        map.Add(catchicng);
+                        colods[player - 1].Remove(catchicng);
+                        set_coords_colod(colods[player - 1]);
+                    }
                 }
+
                 catchicng = null;
                 //sus.Console.WriteLine("coords = {0}", convert_coords(catchicng));
 
@@ -199,40 +225,37 @@ namespace Main
         void create_coords_grid()
         {
             grid.Clear();
-            float x = 0, y = 0,side=100f * map[0].sprite.Scale.X;
+            float x = map[0].sprite.Position.X, y = map[0].sprite.Position.Y, side=100f * map[0].sprite.Scale.X;
             g.Color color = new g.Color(0, 255, 255);
-            for (x = map[0].sprite.Position.X - side/2 ;x>0;x -= side)
+            x -= side / 2;
+            y -= side / 2;
+            while (x >= side)
+                x -= side;
+            while (y >= side)
+                y -= side;
+            for(float x1=x; x1<width_screen;x1+=side)
             {
                 l.Line line = new l.Line();
-                line.point_one = new s.Vector2f(x, 0);
-                line.point_two = new s.Vector2f(x, height_screen);
-                line.color = color;
+                line.point_one = new s.Vector2f(x1, 0);
+                line.point_two = new s.Vector2f(x1, height_screen);
+                line.color = new g.Color(0, 255, 255);
                 grid.Add(line);
             }
-            for (x = map[0].sprite.Position.X + side/2; x < width_screen; x += side)
+            for (float y1 = y; y1 < height_screen; y1 += side)
             {
                 l.Line line = new l.Line();
-                line.point_one = new s.Vector2f(x, 0);
-                line.point_two = new s.Vector2f(x, height_screen);
-                line.color = color;
+                line.point_one = new s.Vector2f(0, y1);
+                line.point_two = new s.Vector2f(width_screen, y1);
+                line.color = new g.Color(0, 255, 255);
                 grid.Add(line);
             }
-            for (y = map[0].sprite.Position.Y - side/2 ; y > 0 ;y -= side)
-            {
-                l.Line line = new l.Line();
-                line.point_one = new s.Vector2f(0, y);
-                line.point_two = new s.Vector2f(width_screen, y);
-                line.color = color;
-                grid.Add(line);
-            }
-            for (y = map[0].sprite.Position.Y + side / 2; y < height_screen; y += side)
-            {
-                l.Line line = new l.Line();
-                line.point_one = new s.Vector2f(0, y);
-                line.point_two = new s.Vector2f(width_screen, y);
-                line.color = color;
-                grid.Add(line);
-            }
+        }
+        double dlina(c.Card card1 , c.Card card2)
+        {
+            double dlina = 0;
+            dlina = sus.Math.Sqrt(sus.Math.Pow((card1.sprite.Position.X-card2.sprite.Position.X),2)+ sus.Math.Pow((card1.sprite.Position.Y - card2.sprite.Position.Y), 2));
+            //sus.Console.WriteLine("dlina = {0}",dlina);
+            return dlina;
         }
         s.Vector2f convert_coords(c.Card card)
         {
@@ -248,8 +271,10 @@ namespace Main
                 if (card.sprite.Position.Y - line.point_one.Y < 0)
                 {
                     pos.Y = line.point_one.Y - side/2;
+                    //sus.Console.WriteLine("line {0}", line.point_one);
                     break;
                 }
+            //sus.Console.WriteLine("coords = {0}}", pos);
             return pos;
         }
     }
