@@ -36,6 +36,7 @@ namespace Main
             Window.MouseMoved += Window_MouseMoved;
             Window.MouseButtonPressed +=Window_MouseButtonPressed;
             Window.KeyPressed += Window_KeyPressed;
+            Window.MouseWheelScrolled += Window_MouseWheel;
         }
         public void GameLoop()
         {
@@ -104,6 +105,19 @@ namespace Main
             
 
         }
+        void Window_MouseWheel(object sender,w.MouseWheelScrollEventArgs e)
+        {
+            s.Vector2f scale = new s.Vector2f(0.25f * e.Delta, 0.25f * e.Delta);
+            scg.List<c.Card> map2 = map.FindAll(x => !x.Equals(map[0]));
+            foreach (c.Card card in map2)
+                correct_coords_scale(scale, card);
+            foreach (c.Card card in map)
+                card.sprite.Scale += scale;
+            create_coords_grid();
+            if (catchicng != null)
+                catchicng.sprite.Scale += scale;
+          
+        }
         void Window_MouseMoved(object sender,w.MouseMoveEventArgs e)
         {
             if(catchicng==null & w.Mouse.IsButtonPressed(w.Mouse.Button.Left))
@@ -138,7 +152,7 @@ namespace Main
                     bool flag = true;
                     foreach (c.Card card in prov)
                     {
-                        //sus.Console.WriteLine("count\n");
+                        sus.Console.WriteLine("count\n");
                         var XYI = card as c.Doroga;
                         var XYI1 = card as c.GasStation;
                         if (XYI == null)
@@ -150,7 +164,7 @@ namespace Main
                     }
                     if(flag)
                     {
-                        sus.Console.WriteLine("can i  way\n");
+                        //sus.Console.WriteLine("can i  way\n");
                         flag = false;
                         scg.List<c.Card> prov2 = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & card1 as c.Doroga!=null & dlina(catchicng, card1) <= side);
                         foreach(c.Card card in prov2)
@@ -219,7 +233,15 @@ namespace Main
                 c.Doroga dor = catchicng as c.Doroga;
                 dor.rotate();
             }
-            
+            if (e.Code == w.Keyboard.Key.A)
+                add_cards_to_colod(1, colods[player - 1], player);
+            if(e.Code ==w.Keyboard.Key.T)
+            {
+                var tr = new c.Trafic();
+                tr.sprite = new g.Sprite(new g.Texture(new g.Image("images/car_stream.png")));
+                tr.player = player;
+                colods[player-1].Add(tr);
+            }
             
         }
         void create_coords_grid()
@@ -250,6 +272,29 @@ namespace Main
                 grid.Add(line);
             }
         }
+        void add_cards_to_colod(int count_of_cards,scg.List<c.Card> coloda,int player)
+        {
+            for(int i=0;i<count_of_cards;++i)
+            {
+                string name = jpgs[rand.Next(jpgs.Length)];
+                if(name.Contains("road"))
+                {
+                    var dorg = new c.Doroga();
+                    dorg.sprite = new g.Sprite(new g.Texture(new g.Image(name)));
+                    dorg.player = player;
+                    dorg.Parse(name);
+                    coloda.Add(dorg);
+                }
+                else
+                {
+                    var tr = new c.Trafic();
+                    tr.sprite = new g.Sprite(new g.Texture(new g.Image(name)));
+                    tr.player = player;
+                    coloda.Add(tr);
+                }
+            }
+            set_coords_colod(coloda);
+        }
         double dlina(c.Card card1 , c.Card card2)
         {
             double dlina = 0;
@@ -276,6 +321,14 @@ namespace Main
                 }
             //sus.Console.WriteLine("coords = {0}}", pos);
             return pos;
+        }
+        void correct_coords_scale(s.Vector2f scale, c.Card card )
+        {
+            float side = 100 * map[0].sprite.Scale.X;
+            s.Vector2f dif = new s.Vector2f(card.sprite.Position.X - map[0].sprite.Position.X, card.sprite.Position.Y - map[0].sprite.Position.Y);
+            s.Vector2i mnoz = new s.Vector2i((int)sus.Math.Round(dif.X / side,sus.MidpointRounding.AwayFromZero), (int)sus.Math.Round(dif.Y / side, sus.MidpointRounding.AwayFromZero));
+            s.Vector2f plus = new s.Vector2f(100 * scale.X * mnoz.X, 100 * scale.Y * mnoz.Y);
+            card.sprite.Position += plus;
         }
     }
 }

@@ -91,12 +91,12 @@ namespace Cards
             bool flag=false;
             if (card.sprite.Position.X - sprite.Position.X > 0)
             {
-                flag = way1 == true & card.way4 == true;
+                flag = way2 == true & card.way4 == true;
             }
 
             if (card.sprite.Position.X - sprite.Position.X < 0)
             {
-                flag = way4 == true & card.way1 == true;
+                flag = way4 == true & card.way2 == true;
             }
 
             if (card.sprite.Position.Y - sprite.Position.Y > 0)
