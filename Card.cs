@@ -1,5 +1,6 @@
 ﻿using g = SFML.Graphics;
 using sus = System;
+using scg = System.Collections.Generic;
 namespace Cards
 {
     internal class Card : g.Drawable
@@ -117,6 +118,16 @@ namespace Cards
             way3 = way2;
             way2 = way1;
             way1 = buffway;
+        }
+
+        public bool is_this_typic()
+        {
+            int count = 0;
+            count = way1 == true ? ++count : count;
+            count = way2 == true ? ++count : count;
+            count = way3 == true ? ++count : count;
+            count = way4 == true ? ++count : count;
+            return count > 1;
         }
     }
     internal class GasStation : Card
