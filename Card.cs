@@ -136,7 +136,7 @@ namespace Cards
             name = way2 ? name += "2_" : name;
             name = way3 ? name += "3_" : name;
             name = way4 ? name += "4_" : name;
-            name+= "detected.png";`
+            name+= "detected.png";
             sprite.Rotation = 0;
             sprite.Texture=new g.Texture(new g.Image(name));
             sus.Console.WriteLine(name);
