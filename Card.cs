@@ -139,7 +139,7 @@ namespace Cards
             name+= "detected.png";
             sprite.Rotation = 0;
             sprite.Texture=new g.Texture(new g.Image(name));
-            sus.Console.WriteLine(name);
+            //sus.Console.WriteLine(name);
         }
         public void set_usual_image()
         {
@@ -152,7 +152,7 @@ namespace Cards
             name += ".png";
             sprite.Rotation = 0;
             sprite.Texture = new g.Texture(new g.Image(name));
-            sus.Console.WriteLine(name);
+            //sus.Console.WriteLine(name);
         }
     }
     internal class GasStation : Card

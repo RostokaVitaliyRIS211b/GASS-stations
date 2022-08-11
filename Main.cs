@@ -414,14 +414,26 @@ namespace Main
         {
             bool flag = false;
             float side = 100 * map[0].sprite.Scale.X;
-            if (card.way1 == true & map.Find(card1 => card.sprite.Position == card.sprite.Position + new s.Vector2f(0, -side)) == null)
+            if (card.way1 == true & map.Find(card1 => card1.sprite.Position == card.sprite.Position + new s.Vector2f(0, -side)) == null)
+            {
                 flag = true;
-            if (card.way2 == true & map.Find(card1 => card.sprite.Position == card.sprite.Position + new s.Vector2f(side, 0)) == null)
+                //sus.Console.WriteLine("flag1 = {0}", flag);
+            }
+            if (card.way2 == true && map.Find(card1 => card1.sprite.Position == card.sprite.Position + new s.Vector2f(side, 0)) == null)
+            {
                 flag = true;
-            if (card.way3 == true & map.Find(card1 => card.sprite.Position == card.sprite.Position + new s.Vector2f(0, side)) == null)
+                //sus.Console.WriteLine("flag2 = {0}", flag);
+            }
+            if (card.way3 == true && map.Find(card1 => card1.sprite.Position == card.sprite.Position + new s.Vector2f(0, side)) == null)
+            {
                 flag = true;
-            if (card.way4 == true & map.Find(card1 => card.sprite.Position == card.sprite.Position + new s.Vector2f(0, -side)) == null)
+                //sus.Console.WriteLine("flag3 = {0}", flag);
+            }
+            if (card.way4 == true & map.Find(card1 => card1.sprite.Position == card.sprite.Position + new s.Vector2f(0, -side)) == null)
+            {
                 flag = true;
+                //sus.Console.WriteLine("flag4 = {0}", flag);
+            }
             return flag;
         }
     }
