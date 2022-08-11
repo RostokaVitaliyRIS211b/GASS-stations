@@ -157,7 +157,7 @@ namespace Cards
     }
     internal class GasStation : Card
     {
-        int level;
+        public int level { get; set; }
         public GasStation() : base()
         {
             level = 0;

@@ -22,13 +22,14 @@ namespace Main
         c.Card catchicng = null;
         s.Vector2f catching_pos = new s.Vector2f();
         sus.Random rand = new sus.Random();
-        public int width_screen = 1280, height_screen = 720,count_of_players = 1,size_of_colod=3,player=1;
+        public int width_screen = 1280, height_screen = 720,count_of_players = 2,size_of_colod=3,player=1;
         g.RenderWindow Window;
         scg.List<scg.List<c.Card>> colods = new scg.List<scg.List<c.Card>>();
         scg.List<c.Card> map = new scg.List<c.Card>();
         scg.List<c.Doroga> way = new scg.List<c.Doroga>();
         scg.List<l.Line> grid = new scg.List<l.Line>();
         t.Textbox textbox1 = new t.Textbox();
+        g.Text text = new g.Text();
         string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_1_2_4.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_1_4.png", "images/road_1_3_4.png", "images/car_stream.png" };
         string [] gasstations = { "images/gas_station_1_red.png", "images/gas_station_2_red.png", "images/gas_station_3_red.png", "images/gas_station_1_blue.png", "images/gas_station_2_blue.png", "images/gas_station_3_blue.png", "images/gas_station_1_green.png", "images/gas_station_2_green.png", "images/gas_station_3_green.png", "images/gas_station_1_orange.png", "images/gas_station_2_orange.png", "images/gas_station_3_orange.png" };
         s.Vector2i mouse_pos1 = new s.Vector2i();
@@ -59,7 +60,12 @@ namespace Main
             textbox1.set_outline_color_rect(g.Color.Blue);
             textbox1.set_outline_thickness_rect(2);
             textbox1.set_pos(width_screen - 150,100);
-            while(Window.IsOpen)
+            text.CharacterSize=20;
+            text.FillColor = new g.Color(g.Color.Red);
+            text.Font = new g.Font("ofont.ru_Impact.ttf");
+            text.Position = new s.Vector2f(40,40);
+            text.DisplayedString = "PLAYER" + player.ToString();
+            while (Window.IsOpen)
             {
                 Window.Clear(g.Color.White);
                 foreach (c.Card card in map)
@@ -70,6 +76,7 @@ namespace Main
                     Window.Draw(card);
                 if (way.Count > 1 && is_first(way[way.Count - 1]))
                     Window.Draw(textbox1);
+                Window.Draw(text);
                 Window.DispatchEvents();
                 mouse_pos1 = w.Mouse.GetPosition(Window);
                 Window.Display();
@@ -97,7 +104,7 @@ namespace Main
                         coloda.Add(trafic);
                     }
                 }
-                for(int j = 4*i; j<4*i+3;++j)
+                for(int j = 3*i; j<3*i+3;++j)
                 {
                     string name = gasstations[j];
                     c.GasStation gas = new c.GasStation { player = i + 1, sprite = new g.Sprite(new g.Texture(new g.Image(name))) };
@@ -157,10 +164,10 @@ namespace Main
                         catching_pos = card.sprite.Position;
                         if (catchicng as c.Trafic != null)
                         {
+                            catchicng.sprite.Scale = new s.Vector2f(1, 1);
                             c.Trafic tr = catchicng as c.Trafic;
                             tr.set_detec_image();
                         }
-                            
                         break;
                     }
             }
@@ -208,6 +215,8 @@ namespace Main
                         map.Add(catchicng);
                         colods[player - 1].Remove(catchicng);
                         set_coords_colod(colods[player - 1]);
+                        increase_player();
+                        update_dispayeld_pl_text();
                     }
                     catchicng = null;
                 }
@@ -237,6 +246,8 @@ namespace Main
                         map.Add(catchicng);
                         colods[player - 1].Remove(catchicng);
                         set_coords_colod(colods[player - 1]);
+                        increase_player();
+                        update_dispayeld_pl_text();
                     }
                     catchicng = null;
                 }
@@ -273,7 +284,18 @@ namespace Main
                             card.set_detec_image();
                             way.Add(card);
                         }
-
+                        else if(textbox1.contains(e.X,e.Y) && way.Count > 1 && is_first(way[way.Count - 1]))
+                        {
+                            go_the_way();
+                            foreach (c.Doroga card1 in way)
+                                card1.set_usual_image();
+                            way.Clear();
+                            colods[player - 1].Remove(catchicng);
+                            catchicng = null;
+                            increase_player();
+                            update_dispayeld_pl_text();
+                            set_coords_colod(colods[player - 1]);
+                        }
                     }
                 }
             }
@@ -290,7 +312,7 @@ namespace Main
             if (e.Code == w.Keyboard.Key.Escape)
                 window.Close();
             //sus.Console.WriteLine("keypr");
-            if (catchicng as c.Doroga!=null & e.Code==w.Keyboard.Key.R)
+            else if (catchicng as c.Doroga != null & e.Code == w.Keyboard.Key.R)
             {
                 catchicng.sprite.Rotation += 90;
                 if (catchicng.sprite.Rotation == 360)
@@ -298,9 +320,9 @@ namespace Main
                 c.Doroga dor = catchicng as c.Doroga;
                 dor.rotate();
             }
-            if (e.Code == w.Keyboard.Key.A)
+            else if (e.Code == w.Keyboard.Key.A)
                 add_cards_to_colod(1, colods[player - 1], player);
-            if(e.Code ==w.Keyboard.Key.T)
+            else if (e.Code == w.Keyboard.Key.T)
             {
                 var tr = new c.Trafic
                 {
@@ -308,26 +330,26 @@ namespace Main
                     player = player
                 };
                 tr.sprite.Origin = new s.Vector2f(50, 50);
-                colods[player-1].Add(tr);
+                colods[player - 1].Add(tr);
                 set_coords_colod(colods[player - 1]);
             }
-            if(e.Code==w.Keyboard.Key.P && catchicng as c.Doroga!=null)
+            else if(e.Code==w.Keyboard.Key.P && catchicng as c.Doroga!=null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
                 dorg.set_detec_image();
             }
-            if(e.Code==w.Keyboard.Key.O && catchicng as c.Doroga!=null)
+            else if(e.Code==w.Keyboard.Key.O && catchicng as c.Doroga!=null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
                 dorg.set_usual_image();
             }
-            if (e.Code == w.Keyboard.Key.V && catchicng as c.Doroga != null)
+            else if (e.Code == w.Keyboard.Key.V && catchicng as c.Doroga != null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
                 sus.Console.WriteLine("way1 ={0},way2 ={1},way3 ={2},way4 ={3}",dorg.way1, dorg.way2, dorg.way3, dorg.way4);
             }
-
-
+            else if(e.Code==w.Keyboard.Key.M)
+                display_count_of_cards();
         }
         void create_coords_grid()
         {
@@ -442,6 +464,55 @@ namespace Main
                 //sus.Console.WriteLine("flag4 = {0}", flag);
             }
             return flag;
+        }
+        void go_the_way()
+        {
+            foreach (c.Doroga doroga in way)
+                get_some_player_card(doroga);
+        }
+        void get_some_player_card(c.Doroga doroga)
+        {
+            double side = 100 * map[0].sprite.Scale.X;
+            scg.List<c.GasStation> stations = new scg.List<c.GasStation>();
+            foreach (c.Card card in map)
+                if (card as c.GasStation != null && dlina(card, doroga) <= side * sus.Math.Sqrt(2))
+                    stations.Add(card as c.GasStation);
+            //sus.Console.WriteLine("count of stations = {0}", stations.Count);
+            if (stations.Count > 1)
+            {
+                scg.List<c.GasStation> stations_level_3 = stations.FindAll(card1 => card1.level == 3);
+                scg.List<c.GasStation> stations_level_2 = stations.FindAll(card1 => card1.level == 2);
+                scg.List<c.GasStation> stations_level_1 = stations.FindAll(card1 => card1.level == 1);
+                if(stations_level_3.Count == 1)
+                    add_cards_to_colod(1, colods[stations_level_3[0].player - 1], stations_level_3[0].player);
+                else if(stations_level_3.Count==0 && stations_level_2.Count==1)
+                    add_cards_to_colod(1, colods[stations_level_2[0].player - 1], stations_level_2[0].player);
+                else if(stations_level_3.Count == 0 && stations_level_2.Count == 0 && stations_level_1.Count==1)
+                    add_cards_to_colod(1, colods[stations_level_1[0].player - 1], stations_level_1[0].player);
+            }
+            else if(stations.Count==1)
+                add_cards_to_colod(1, colods[stations[0].player - 1], stations[0].player);
+        }
+        void increase_player()
+        {
+            ++player;
+            if (player > count_of_players)
+                player = 1;
+        }
+        void update_dispayeld_pl_text()
+        {
+            text.FillColor = player == 1 ? g.Color.Red : text.FillColor;
+            text.FillColor = player == 2 ? g.Color.Blue : text.FillColor;
+            text.FillColor = player == 3 ? g.Color.Magenta : text.FillColor;
+            text.FillColor = player == 4 ? g.Color.Cyan : text.FillColor;
+            text.DisplayedString = "PLAYER" + player.ToString();
+        }
+        void display_count_of_cards()
+        {
+            int i = 0;
+            foreach (scg.List<c.Card> cards in colods)
+                sus.Console.WriteLine("PLAYER {0} = {1}", ++i, cards.Count);
+            sus.Console.WriteLine("");
         }
     }
 }
