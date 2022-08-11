@@ -28,6 +28,7 @@ namespace Main
         scg.List<c.Card> map = new scg.List<c.Card>();
         scg.List<c.Doroga> way = new scg.List<c.Doroga>();
         scg.List<l.Line> grid = new scg.List<l.Line>();
+        t.Textbox textbox1 = new t.Textbox();
         string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_1_2_4.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_1_4.png", "images/road_1_3_4.png", "images/car_stream.png" };
         string [] gasstations = { "images/gas_station_1_red.png", "images/gas_station_2_red.png", "images/gas_station_3_red.png", "images/gas_station_1_blue.png", "images/gas_station_2_blue.png", "images/gas_station_3_blue.png", "images/gas_station_1_green.png", "images/gas_station_2_green.png", "images/gas_station_3_green.png", "images/gas_station_1_orange.png", "images/gas_station_2_orange.png", "images/gas_station_3_orange.png" };
         s.Vector2i mouse_pos1 = new s.Vector2i();
@@ -50,6 +51,14 @@ namespace Main
             start.Parse("1");
             map.Add(start);
             create_coords_grid();
+            textbox1.set_string("GO!");
+            textbox1.set_color_text(new g.Color(255,128,0));
+            textbox1.set_Fill_color_rect(new g.Color(0,255,255));
+            textbox1.set_size_rect(100, 50);
+            textbox1.set_size_character_text(20);
+            textbox1.set_outline_color_rect(g.Color.Blue);
+            textbox1.set_outline_thickness_rect(2);
+            textbox1.set_pos(width_screen - 150,100);
             while(Window.IsOpen)
             {
                 Window.Clear(g.Color.White);
@@ -59,6 +68,8 @@ namespace Main
                     Window.Draw(line);
                 foreach (c.Card card in colods[player - 1])
                     Window.Draw(card);
+                if (way.Count > 1 && is_first(way[way.Count - 1]))
+                    Window.Draw(textbox1);
                 Window.DispatchEvents();
                 mouse_pos1 = w.Mouse.GetPosition(Window);
                 Window.Display();
@@ -272,10 +283,6 @@ namespace Main
                 if (catchicng.sprite.Rotation == 360)
                     catchicng.sprite.Rotation = 0;
             }
-                
-
-
-
         }
         void Window_KeyPressed(object sender,w.KeyEventArgs e)
         {
@@ -429,7 +436,7 @@ namespace Main
                 flag = true;
                 //sus.Console.WriteLine("flag3 = {0}", flag);
             }
-            if (card.way4 == true & map.Find(card1 => card1.sprite.Position == card.sprite.Position + new s.Vector2f(0, -side)) == null)
+            if (card.way4 == true & map.Find(card1 => card1.sprite.Position == card.sprite.Position + new s.Vector2f(-side, 0)) == null)
             {
                 flag = true;
                 //sus.Console.WriteLine("flag4 = {0}", flag);

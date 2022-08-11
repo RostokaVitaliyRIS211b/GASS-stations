@@ -27,7 +27,7 @@ namespace Text
             rect = new g.RectangleShape();
             text = new g.Text();
             font = new g.Font("C:/Users/Динозавр/source/repos/tie-toe/tie-toe/ofont.ru_Impact.ttf"); text.Font = font;
-            set_size_text((int)textbox.text.CharacterSize);
+            set_size_character_text((int)textbox.text.CharacterSize);
             set_string(textbox.text.DisplayedString);
             set_color_text(textbox.text.FillColor);
             set_outline_color_rect(textbox.rect.OutlineColor);
@@ -52,11 +52,17 @@ namespace Text
         {
             rect.OutlineThickness = thick;
         }
+        public void set_size_rect(float width, float height)
+        {
+            rect.Size = new s.Vector2f(width, height);
+            rect.Origin = new s.Vector2f(width / 2, height / 2);
+        }
         public void set_size_rect(s.Vector2f size)
         {
             rect.Size = size;
             rect.Origin = new s.Vector2f(size.X / 2, size.Y / 2);
         }
+
         public void set_pos(float x, float y)
         {
             //sus.Console.WriteLine("rect {0} {1}", rect.Origin, rect.Size);
@@ -73,14 +79,16 @@ namespace Text
             text.Position = vec;
             //sus.Console.WriteLine("text {0} {1} {2}", text.Origin, text.GetGlobalBounds().Width, text.GetGlobalBounds().Top);
         }
-        public void set_size_text(int size)
+        public void set_size_character_text(int size)
         {
             text.CharacterSize = (uint)size;
-          
+            text.Origin = new s.Vector2f(text.GetGlobalBounds().Width / 2f, text.GetGlobalBounds().Height / 2f + text.CharacterSize / 6f);// магические числа на
+
         }
         public void set_string(string str)
         {
             text.DisplayedString = str;
+            text.Origin = new s.Vector2f(text.GetGlobalBounds().Width / 2f, text.GetGlobalBounds().Height / 2f + text.CharacterSize / 6f);// магические числа на
         }
         public string get_string()
         {
