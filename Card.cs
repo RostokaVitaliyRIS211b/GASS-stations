@@ -118,8 +118,8 @@ namespace Cards
             way3 = way2;
             way2 = way1;
             way1 = buffway;
+            //sus.Console.WriteLine(" {0},{1},{2},{3}", way1, way2, way3, way4);
         }
-
         public bool is_this_typic()
         {
             int count = 0;
@@ -128,6 +128,31 @@ namespace Cards
             count = way3 == true ? ++count : count;
             count = way4 == true ? ++count : count;
             return count > 1;
+        }
+        public void set_detec_image()
+        {
+            string name = "images/road_";
+            name = way1 ? name += "1_" : name;
+            name = way2 ? name += "2_" : name;
+            name = way3 ? name += "3_" : name;
+            name = way4 ? name += "4_" : name;
+            name+= "detected.png";`
+            sprite.Rotation = 0;
+            sprite.Texture=new g.Texture(new g.Image(name));
+            sus.Console.WriteLine(name);
+        }
+        public void set_usual_image()
+        {
+            string name = "images/road_";
+            name = way1 ? name += "1_" : name;
+            name = way2 ? name += "2_" : name;
+            name = way3 ? name += "3_" : name;
+            name = way4 ? name += "4_" : name;
+            name = name.Remove(name.LastIndexOf('_'), 1);
+            name += ".png";
+            sprite.Rotation = 0;
+            sprite.Texture = new g.Texture(new g.Image(name));
+            sus.Console.WriteLine(name);
         }
     }
     internal class GasStation : Card
@@ -187,6 +212,14 @@ namespace Cards
         public Trafic() : base()
         {
 
+        }
+        public void set_detec_image()
+        {
+            sprite.Texture.Update(new g.Image("images/car_stream_detected.png"));
+        }
+        public void set_usual_image()
+        {
+            sprite.Texture.Update(new g.Image("images/car_stream.png"));
         }
         public override void Parse(string name)
         {

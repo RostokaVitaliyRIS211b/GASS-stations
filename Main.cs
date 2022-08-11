@@ -5,6 +5,7 @@ using w = SFML.Window;
 using c = Cards;
 using scg = System.Collections.Generic;
 using l = Lines;
+using t = Text;
 namespace Main
 {
     class ProgramMain
@@ -27,7 +28,7 @@ namespace Main
         scg.List<c.Card> map = new scg.List<c.Card>();
         scg.List<c.Doroga> way = new scg.List<c.Doroga>();
         scg.List<l.Line> grid = new scg.List<l.Line>();
-        string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_4_1_2.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_4_1.png", "images/road_3_4_1.png", "images/car_stream.png" };
+        string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_1_2_4.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_1_4.png", "images/road_1_3_4.png", "images/car_stream.png" };
         string [] gasstations = { "images/gas_station_1_red.png", "images/gas_station_2_red.png", "images/gas_station_3_red.png", "images/gas_station_1_blue.png", "images/gas_station_2_blue.png", "images/gas_station_3_blue.png", "images/gas_station_1_green.png", "images/gas_station_2_green.png", "images/gas_station_3_green.png", "images/gas_station_1_orange.png", "images/gas_station_2_orange.png", "images/gas_station_3_orange.png" };
         s.Vector2i mouse_pos1 = new s.Vector2i();
         public MainWindow()
@@ -105,6 +106,7 @@ namespace Main
         }
         void Window_MouseWheel(object sender,w.MouseWheelScrollEventArgs e)
         {
+          
             s.Vector2f scale = new s.Vector2f(0.25f * e.Delta, 0.25f * e.Delta);
             scg.List<c.Card> map2 = map.FindAll(x => !x.Equals(map[0]));
             if (map[0].sprite.Scale.X>=0.5 & e.Delta<0 | e.Delta>0)
@@ -134,7 +136,7 @@ namespace Main
         }
         void Window_MouseButtonPressed(object sender,w.MouseButtonEventArgs e)
         {
-            if(catchicng == null)
+            if (catchicng == null && e.Button == w.Mouse.Button.Left)
             {
                 foreach (c.Card card in colods[player - 1])
                     if (card.sprite.GetGlobalBounds().Contains(e.X, e.Y))
@@ -143,17 +145,21 @@ namespace Main
                         catchicng.sprite.Scale = map[0].sprite.Scale;
                         catching_pos = card.sprite.Position;
                         if (catchicng as c.Trafic != null)
-                            catchicng.sprite.Scale += new s.Vector2f(0.25f, 0.25f);
+                        {
+                            c.Trafic tr = catchicng as c.Trafic;
+                            tr.set_detec_image();
+                        }
+                            
                         break;
                     }
             }
-            else
+            else if (e.Button == w.Mouse.Button.Left && catchicng != null)
             {
                 double side = 100 * map[0].sprite.Scale.X;
-                if (catchicng as c.Doroga!=null)
+                if (catchicng as c.Doroga != null)
                 {
                     catchicng.sprite.Position = convert_coords(catchicng);
-                    scg.List<c.Card> prov = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0)& dlina(catchicng,card1)<=side);
+                    scg.List<c.Card> prov = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & dlina(catchicng, card1) <= side);
                     bool flag = true;
                     foreach (c.Card card in prov)
                     {
@@ -167,12 +173,12 @@ namespace Main
                         if (!flag)
                             break;
                     }
-                    if(flag)
+                    if (flag)
                     {
                         //sus.Console.WriteLine("can i  way\n");
                         flag = false;
-                        scg.List<c.Card> prov2 = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & card1 as c.Doroga!=null & dlina(catchicng, card1) <= side);
-                        foreach(c.Card card in prov2)
+                        scg.List<c.Card> prov2 = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & card1 as c.Doroga != null & dlina(catchicng, card1) <= side);
+                        foreach (c.Card card in prov2)
                         {
                             var dorg = card as c.Doroga;
                             flag = dorg.can_i_way(catchicng as c.Doroga);
@@ -180,16 +186,16 @@ namespace Main
                                 break;
                         }
                     }
-                    if(!flag)
+                    if (!flag)
                     {
                         catchicng.sprite.Position = catching_pos;
                         catchicng.sprite.Scale = new s.Vector2f(1, 1);
                     }
-                       
-                    else 
+
+                    else
                     {
                         map.Add(catchicng);
-                        colods[player-1].Remove(catchicng);
+                        colods[player - 1].Remove(catchicng);
                         set_coords_colod(colods[player - 1]);
                     }
                     catchicng = null;
@@ -199,7 +205,7 @@ namespace Main
                     catchicng.sprite.Position = convert_coords(catchicng);
                     scg.List<c.Card> prov = map.FindAll(card1 => (card1.sprite.Position.X - catchicng.sprite.Position.X == 0 | card1.sprite.Position.Y - catchicng.sprite.Position.Y == 0) & (sus.Math.Abs(card1.sprite.Position.X - catchicng.sprite.Position.X) <= side & sus.Math.Abs(card1.sprite.Position.Y - catchicng.sprite.Position.Y) <= side));
                     bool flag = true;
-                    foreach(c.Card card in prov)
+                    foreach (c.Card card in prov)
                     {
                         var XYI = card as c.Doroga;
                         var XYI1 = card as c.GasStation;
@@ -210,7 +216,7 @@ namespace Main
                         if (!flag)
                             break;
                     }
-                    if(!flag | prov.Count==0)
+                    if (!flag | prov.Count == 0)
                     {
                         catchicng.sprite.Position = catching_pos;
                         catchicng.sprite.Scale = new s.Vector2f(1, 1);
@@ -223,14 +229,15 @@ namespace Main
                     }
                     catchicng = null;
                 }
-                if (catchicng as c.Trafic !=null)
+                if (catchicng as c.Trafic != null)
                 {
-                    if(catchicng.sprite.GetGlobalBounds().Contains(e.X,e.Y))
+                    if (catchicng.sprite.GetGlobalBounds().Contains(e.X, e.Y))
                     {
-                        foreach (c.Card card in way)
-                            card.sprite.Scale = map[0].sprite.Scale;
+                        foreach (c.Doroga card in way)
+                            card.set_usual_image();
                         way.Clear();
-                        catchicng.sprite.Scale = new s.Vector2f(1, 1);
+                        c.Trafic tr = catchicng as c.Trafic;
+                        tr.set_usual_image();
                         catchicng = null;
                     }
                     else
@@ -239,32 +246,35 @@ namespace Main
                         if (way.Contains(card))
                         {
                             int index = way.IndexOf(card);
-                            sus.Console.WriteLine("index = {0}", index);
+                            //sus.Console.WriteLine("index = {0}", index);
                             scg.List<c.Doroga> way2 = way.GetRange(index, way.Count - index);
                             foreach (c.Doroga doroga in way2)
-                                doroga.sprite.Scale -= new s.Vector2f(0.25f, 0.25f);
+                                doroga.set_usual_image();
                             way.RemoveRange(index, way.Count - index);
                         }
-                        else if (card  != null && is_first(card) && way.Count == 0 && card.is_this_typic())
+                        else if (card != null && is_first(card) && way.Count == 0 && card.is_this_typic())
                         {
-                            card.sprite.Scale += new s.Vector2f(0.25f, 0.25f);
+                            card.set_detec_image();
                             way.Add(card);
                         }
-                        else if (card  != null &&  way.Count > 0 && dlina(card, way[way.Count - 1]) <= side && way[way.Count - 1].can_i_way(card) && card.is_this_typic())
+                        else if (card != null && way.Count > 0 && dlina(card, way[way.Count - 1]) <= side && way[way.Count - 1].can_i_way(card) && card.is_this_typic())
                         {
-                            card.sprite.Scale += new s.Vector2f(0.25f, 0.25f);
+                            card.set_detec_image();
                             way.Add(card);
                         }
-                        
+
                     }
                 }
-
-               
-                //sus.Console.WriteLine("coords = {0}", convert_coords(catchicng));
-
-
             }
-            
+            else if (e.Button == w.Mouse.Button.Right && catchicng != null)
+            {
+                catchicng.sprite.Rotation += 90;
+                if (catchicng.sprite.Rotation == 360)
+                    catchicng.sprite.Rotation = 0;
+            }
+                
+
+
 
         }
         void Window_KeyPressed(object sender,w.KeyEventArgs e)
@@ -294,7 +304,23 @@ namespace Main
                 colods[player-1].Add(tr);
                 set_coords_colod(colods[player - 1]);
             }
-            
+            if(e.Code==w.Keyboard.Key.P && catchicng as c.Doroga!=null)
+            {
+                c.Doroga dorg = catchicng as c.Doroga;
+                dorg.set_detec_image();
+            }
+            if(e.Code==w.Keyboard.Key.O && catchicng as c.Doroga!=null)
+            {
+                c.Doroga dorg = catchicng as c.Doroga;
+                dorg.set_usual_image();
+            }
+            if (e.Code == w.Keyboard.Key.V && catchicng as c.Doroga != null)
+            {
+                c.Doroga dorg = catchicng as c.Doroga;
+                sus.Console.WriteLine("way1 ={0},way2 ={1},way3 ={2},way4 ={3}",dorg.way1, dorg.way2, dorg.way3, dorg.way4);
+            }
+
+
         }
         void create_coords_grid()
         {
@@ -353,7 +379,7 @@ namespace Main
         {
             double dlina = 0;
             dlina = sus.Math.Sqrt(sus.Math.Pow((card1.sprite.Position.X-card2.sprite.Position.X),2)+ sus.Math.Pow((card1.sprite.Position.Y - card2.sprite.Position.Y), 2));
-            sus.Console.WriteLine("dlina = {0}", dlina);
+            //sus.Console.WriteLine("dlina = {0}", dlina);
             return dlina;
         }
         s.Vector2f convert_coords(c.Card card)

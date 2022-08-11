@@ -58,6 +58,7 @@
     <Compile Include="Card.cs" />
     <Compile Include="line.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Textbox.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="SFML.Audio, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
