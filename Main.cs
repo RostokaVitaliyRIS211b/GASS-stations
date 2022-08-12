@@ -6,15 +6,88 @@ using c = Cards;
 using scg = System.Collections.Generic;
 using l = Lines;
 using t = Text;
+using st = System.Threading;
 namespace Main
 {
     class ProgramMain
     {
         public static int Main()
         {
+            Menu menu = new Menu();
             MainWindow Game = new MainWindow();
-            Game.GameLoop();
+            Game.Window.Close();
+            while(!menu.closed)
+            {
+                menu.MenuLoop();
+                Game.GameLoop();
+            }
             return 0;
+        }
+    }
+    class Menu
+    {
+        public g.RenderWindow Window;
+        static public int width_screen = 1280, height_screen = 720;
+        g.Text nazvanie = new g.Text { CharacterSize=48,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="KINGS OF GAS STATIONS",FillColor=g.Color.Black };
+        scg.List<t.Textbox> textboxes = new scg.List<t.Textbox>();
+        public bool closed = false;
+        public Menu()
+        {
+            Window = new g.RenderWindow(new w.VideoMode((uint)width_screen, (uint)height_screen), "Kings of gas stations");
+            //Window.MouseButtonPressed += Window_MouseButton_Pressed;
+            //Window.KeyPressed += Window_KeyPressed;
+        }
+        public void MenuLoop()
+        {
+            nazvanie.Position = new s.Vector2f(width_screen/2-nazvanie.GetGlobalBounds().Width/2,50);
+            t.Textbox textbox1 = new t.Textbox();
+            textbox1.set_Fill_color_rect(new g.Color(0, 255, 255));
+            textbox1.set_outline_thickness_rect(2);
+            textbox1.set_outline_color_rect(g.Color.Black);
+            textbox1.set_size_rect(150, 70);
+            textbox1.set_size_character_text(32);
+            textbox1.set_color_text(g.Color.Black);
+            textbox1.set_string("START");
+            textbox1.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2 - 150));
+            t.Textbox textbox2 = new t.Textbox();
+            textbox2.set_Fill_color_rect(new g.Color(0, 255, 255));
+            textbox2.set_outline_thickness_rect(2);
+            textbox2.set_outline_color_rect(g.Color.Black);
+            textbox2.set_size_rect(150, 70);
+            textbox2.set_size_character_text(32);
+            textbox2.set_color_text(g.Color.Black);
+            textbox2.set_string("SETTINGS");
+            textbox2.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2-50));
+            t.Textbox textbox3 = new t.Textbox();
+            textbox3.set_Fill_color_rect(new g.Color(0, 255, 255));
+            textbox3.set_outline_thickness_rect(2);
+            textbox3.set_outline_color_rect(g.Color.Black);
+            textbox3.set_size_rect(150, 70);
+            textbox3.set_size_character_text(32);
+            textbox3.set_color_text(g.Color.Black);
+            textbox3.set_string("EXIT");
+            textbox3.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2+50));
+            textboxes.Add(textbox1);
+            textboxes.Add(textbox2);
+            textboxes.Add(textbox3);
+            while(Window.IsOpen)
+            {
+                Window.Clear(g.Color.White);
+                foreach (t.Textbox textbox in textboxes)
+                    Window.Draw(textbox);
+                Window.Draw(nazvanie);
+                Window.DispatchEvents();
+                sus.Console.WriteLine("DRAW");
+                Window.Display();
+            }
+        }
+        void Window_MouseButton_Pressed(object sender,w.MouseButtonEventArgs e)
+        {
+
+        }
+        void Window_KeyPressed(object sender,w.KeyEventArgs e)
+        {
+
         }
     }
     class MainWindow
@@ -22,14 +95,20 @@ namespace Main
         c.Card catchicng = null;
         s.Vector2f catching_pos = new s.Vector2f();
         sus.Random rand = new sus.Random();
-        public int width_screen = 1280, height_screen = 720,count_of_players = 2,size_of_colod=3,player=1;
-        g.RenderWindow Window;
+        static public int width_screen = 1280, height_screen = 720,count_of_players = 4,size_of_colod=3,player=1,count_of_cards=20;
+        public g.RenderWindow Window;
         scg.List<scg.List<c.Card>> colods = new scg.List<scg.List<c.Card>>();
         scg.List<c.Card> map = new scg.List<c.Card>();
         scg.List<c.Doroga> way = new scg.List<c.Doroga>();
         scg.List<l.Line> grid = new scg.List<l.Line>();
         t.Textbox textbox1 = new t.Textbox();
+        s.Clock clock = new s.Clock();
+        g.Text message = new g.Text { CharacterSize=32,FillColor=g.Color.Black,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="You cannot choose this card to way",Position=new s.Vector2f(width_screen/2,height_screen/10) };
+        g.Sprite billy = new g.Sprite { Texture = new g.Texture(new g.Image("images/card zadnik.png")), Origin = new s.Vector2f(50, 50),Position =new s.Vector2f(60,120) };
         g.Text text = new g.Text();
+        g.Text count = new g.Text();
+        g.Sprite zadnik = new g.Sprite(new g.Texture(new g.Image("images/zadnik.png")));
+        bool draw_grid = true;
         string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_1_2_4.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_1_4.png", "images/road_1_3_4.png", "images/car_stream.png" };
         string [] gasstations = { "images/gas_station_1_red.png", "images/gas_station_2_red.png", "images/gas_station_3_red.png", "images/gas_station_1_blue.png", "images/gas_station_2_blue.png", "images/gas_station_3_blue.png", "images/gas_station_1_green.png", "images/gas_station_2_green.png", "images/gas_station_3_green.png", "images/gas_station_1_orange.png", "images/gas_station_2_orange.png", "images/gas_station_3_orange.png" };
         s.Vector2i mouse_pos1 = new s.Vector2i();
@@ -43,6 +122,7 @@ namespace Main
         }
         public void GameLoop()
         {
+            message.Position -= new s.Vector2f(message.GetGlobalBounds().Width/2, 0);
             initialize_colods();
             foreach (scg.List<c.Card> list in colods)
                 set_coords_colod(list);
@@ -63,23 +143,41 @@ namespace Main
             text.CharacterSize=20;
             text.FillColor = new g.Color(g.Color.Red);
             text.Font = new g.Font("ofont.ru_Impact.ttf");
-            text.Position = new s.Vector2f(40,40);
+            text.Position = new s.Vector2f(30,40);
             text.DisplayedString = "PLAYER" + player.ToString();
+            count.CharacterSize = 20;
+            count.FillColor = g.Color.Black;
+            count.Font = new g.Font("ofont.ru_Impact.ttf");
+            count.Position = new s.Vector2f(50, 180);
+            count.DisplayedString = count_of_cards.ToString();
             while (Window.IsOpen)
             {
                 Window.Clear(g.Color.White);
+                Window.Draw(zadnik);
                 foreach (c.Card card in map)
                     Window.Draw(card);
-                foreach (l.Line line in grid)
-                    Window.Draw(line);
+                if(draw_grid)
+                    foreach (l.Line line in grid)
+                        Window.Draw(line);
                 foreach (c.Card card in colods[player - 1])
                     Window.Draw(card);
+                if (clock.ElapsedTime.AsSeconds() < 1 && catchicng!=null)
+                    Window.Draw(message);
                 if (way.Count > 1 && is_first(way[way.Count - 1]))
                     Window.Draw(textbox1);
+                Window.Draw(billy);
                 Window.Draw(text);
+                Window.Draw(count);
                 Window.DispatchEvents();
+                if (count_of_cards == 0)
+                    win();
                 mouse_pos1 = w.Mouse.GetPosition(Window);
                 Window.Display();
+                if (count_of_cards == 0)
+                {
+                    st.Thread.Sleep(2000);
+                    Window.Close();
+                }
             }
         }
         void initialize_colods()
@@ -103,6 +201,7 @@ namespace Main
                         trafic.sprite.Origin = new s.Vector2f(50, 50);
                         coloda.Add(trafic);
                     }
+                    --count_of_cards;
                 }
                 for(int j = 3*i; j<3*i+3;++j)
                 {
@@ -115,6 +214,7 @@ namespace Main
                 colods.Add(coloda);
 
             }
+            count.DisplayedString = count_of_cards.ToString();
         }
         void set_coords_colod(scg.List<c.Card> coloda)
         {
@@ -170,6 +270,15 @@ namespace Main
                         }
                         break;
                     }
+                if (catchicng == null && billy.GetGlobalBounds().Contains(e.X, e.Y))
+                {
+                    add_cards_to_colod(1, colods[player - 1], player);
+                    increase_player();
+                    update_dispayeld_pl_text();
+                    --count_of_cards;
+                    count.DisplayedString = count_of_cards.ToString();
+                }
+                    
             }
             else if (e.Button == w.Mouse.Button.Left && catchicng != null)
             {
@@ -296,6 +405,10 @@ namespace Main
                             update_dispayeld_pl_text();
                             set_coords_colod(colods[player - 1]);
                         }
+                        else if(card!=null)
+                        {
+                            clock.Restart();
+                        }
                     }
                 }
             }
@@ -333,12 +446,12 @@ namespace Main
                 colods[player - 1].Add(tr);
                 set_coords_colod(colods[player - 1]);
             }
-            else if(e.Code==w.Keyboard.Key.P && catchicng as c.Doroga!=null)
+            else if (e.Code == w.Keyboard.Key.P && catchicng as c.Doroga != null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
                 dorg.set_detec_image();
             }
-            else if(e.Code==w.Keyboard.Key.O && catchicng as c.Doroga!=null)
+            else if (e.Code == w.Keyboard.Key.O && catchicng as c.Doroga != null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
                 dorg.set_usual_image();
@@ -346,10 +459,12 @@ namespace Main
             else if (e.Code == w.Keyboard.Key.V && catchicng as c.Doroga != null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
-                sus.Console.WriteLine("way1 ={0},way2 ={1},way3 ={2},way4 ={3}",dorg.way1, dorg.way2, dorg.way3, dorg.way4);
+                sus.Console.WriteLine("way1 ={0},way2 ={1},way3 ={2},way4 ={3}", dorg.way1, dorg.way2, dorg.way3, dorg.way4);
             }
-            else if(e.Code==w.Keyboard.Key.M)
+            else if (e.Code == w.Keyboard.Key.M)
                 display_count_of_cards();
+            else if (e.Code == w.Keyboard.Key.D)
+                draw_grid = !draw_grid;
         }
         void create_coords_grid()
         {
@@ -503,8 +618,8 @@ namespace Main
         {
             text.FillColor = player == 1 ? g.Color.Red : text.FillColor;
             text.FillColor = player == 2 ? g.Color.Blue : text.FillColor;
-            text.FillColor = player == 3 ? g.Color.Magenta : text.FillColor;
-            text.FillColor = player == 4 ? g.Color.Cyan : text.FillColor;
+            text.FillColor = player == 3 ? g.Color.Green : text.FillColor;
+            text.FillColor = player == 4 ? g.Color.Yellow : text.FillColor;
             text.DisplayedString = "PLAYER" + player.ToString();
         }
         void display_count_of_cards()
@@ -513,6 +628,43 @@ namespace Main
             foreach (scg.List<c.Card> cards in colods)
                 sus.Console.WriteLine("PLAYER {0} = {1}", ++i, cards.Count);
             sus.Console.WriteLine("");
+        }
+        void win()
+        {
+            int max = 0, player = 1;
+            for (int i = 1; i <= count_of_players; ++i)
+            {
+                if (colods[i - 1].Count > max)
+                {
+                    max = colods[i - 1].Count;
+                    player = i;
+                }
+                else if (colods[i - 1].Count == max)
+                    player = 0;
+            }
+            g.Text win_text = new g.Text
+            {
+                CharacterSize = 64,
+                FillColor = new g.Color(g.Color.Red),
+                Font = new g.Font("ofont.ru_Impact.ttf"),
+                Position = new s.Vector2f(width_screen / 2, height_screen / 2),
+                DisplayedString ="PLAYER " + player.ToString() + " WINS!"
+            };
+            if(player==0)
+            {
+                win_text.FillColor = g.Color.Black;
+                win_text.DisplayedString = "DRAW";
+            }
+            else if(player!=0)
+            {
+                win_text.FillColor = player == 1 ?g.Color.Red:g.Color.White;
+                win_text.FillColor = player == 2 ? g.Color.Blue : g.Color.White;
+                win_text.FillColor = player == 3 ? g.Color.Green : g.Color.White;
+                win_text.FillColor = player == 4 ? g.Color.Yellow : g.Color.White;
+            }
+            win_text.Origin = new s.Vector2f(win_text.GetGlobalBounds().Width / 2f, win_text.GetGlobalBounds().Height / 2f + win_text.CharacterSize / 6f);
+            Window.Draw(win_text);
+          
         }
     }
 }
