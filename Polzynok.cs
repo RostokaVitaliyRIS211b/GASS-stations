@@ -3,7 +3,7 @@ using s = SFML.System;
 using sus=System;
 namespace Polzet
 {
-    public class HPolzynok:g.Drawable
+    public class HPolzynok : g.Drawable
     {
         protected g.RectangleShape rect;
         protected g.RectangleShape p;
@@ -22,10 +22,8 @@ namespace Polzet
         }
         protected int vl(float x)
         {
-            return (int)(x-rect.Position.X);
+            return (int)(x - rect.Position.X);
         }
-
-
         public HPolzynok()
         {
             rect = new g.RectangleShape();
@@ -37,6 +35,27 @@ namespace Polzet
             mvf += standart_func;
             v += vl;
             value = 0;
+        }
+        public HPolzynok(ref HPolzynok polzynok)
+        {
+            rect = new g.RectangleShape();
+            end1 = new g.CircleShape();
+            end2 = new g.CircleShape();
+            p = new g.RectangleShape();
+            p1 = new g.RectangleShape();
+            active = new g.CircleShape();
+            mvf += standart_func;
+            v += vl;
+            value = 0;
+            set_Fillcolor_act(polzynok.active.FillColor);
+            set_Fill_color_rect(polzynok.rect.FillColor);
+            set_outline_color_act(polzynok.active.OutlineColor);
+            set_Outline_color_rect(polzynok.rect.OutlineColor);
+            set_Outline_thickness_act(polzynok.active.OutlineThickness);
+            set_rad_act(polzynok.active.Radius);
+            set_rect_outline_thickness(polzynok.rect.OutlineThickness);
+            set_size_rect(polzynok.rect.Size.X,polzynok.rect.Size.Y);
+            set_pos_polz(polzynok.rect.Position.X,polzynok.rect.Position.Y);
         }
         public void set_Fill_color_rect(g.Color color)
         {

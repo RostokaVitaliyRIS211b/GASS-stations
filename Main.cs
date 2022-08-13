@@ -39,6 +39,24 @@ namespace Main
         }
         public void MenuLoop()
         {
+            p.HPolzynok polzynok1 = new p.HPolzynok();
+            polzynok1.set_Fillcolor_act(g.Color.White);
+            polzynok1.set_outline_color_act(new g.Color(0, 113, 188));
+            polzynok1.set_Fill_color_rect(new g.Color(0, 113, 188));
+            polzynok1.set_size_rect(400, 20);
+            polzynok1.set_rad_act(20);
+            polzynok1.set_Outline_thickness_act(15);
+            polzynok1.set_pos_polz(width_screen / 2, height_screen / 2 - 150);
+
+            p.HPolzynok polzynok2 = new p.HPolzynok(ref polzynok1);
+            polzynok2.set_pos_polz(width_screen / 2, height_screen / 2);
+            p.HPolzynok polzynok3 = new p.HPolzynok(ref polzynok1);
+            polzynok3.set_pos_polz(width_screen / 2, height_screen / 2 + 150);
+
+            polzynoks.Add(polzynok1);
+            polzynoks.Add(polzynok2);
+            polzynoks.Add(polzynok3);
+
             nazvanie.Position = new s.Vector2f(width_screen/2-nazvanie.GetGlobalBounds().Width/2,50);
             t.Textbox textbox1 = new t.Textbox();
             textbox1.set_Fill_color_rect(new g.Color(0, 255, 255));
@@ -49,22 +67,10 @@ namespace Main
             textbox1.set_color_text(g.Color.Black);
             textbox1.set_string("START");
             textbox1.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2 - 150));
-            t.Textbox textbox2 = new t.Textbox();
-            textbox2.set_Fill_color_rect(new g.Color(0, 255, 255));
-            textbox2.set_outline_thickness_rect(2);
-            textbox2.set_outline_color_rect(g.Color.Black);
-            textbox2.set_size_rect(150, 70);
-            textbox2.set_size_character_text(32);
-            textbox2.set_color_text(g.Color.Black);
+            t.Textbox textbox2 = new t.Textbox( ref textbox1);
             textbox2.set_string("SETTINGS");
             textbox2.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2-50));
-            t.Textbox textbox3 = new t.Textbox();
-            textbox3.set_Fill_color_rect(new g.Color(0, 255, 255));
-            textbox3.set_outline_thickness_rect(2);
-            textbox3.set_outline_color_rect(g.Color.Black);
-            textbox3.set_size_rect(150, 70);
-            textbox3.set_size_character_text(32);
-            textbox3.set_color_text(g.Color.Black);
+            t.Textbox textbox3 = new t.Textbox(ref textbox1);
             textbox3.set_string("EXIT");
             textbox3.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2+50));
             textboxes.Add(textbox1);
@@ -75,11 +81,18 @@ namespace Main
             Window.KeyPressed += Window_KeyPressed;
             while (Window.IsOpen)
             {
+                s.Vector2i mouse_pos = w.Mouse.GetPosition(Window);
                 Window.Clear(g.Color.White);
                 if(!settings_fl)
                 {
                     foreach (t.Textbox textbox in textboxes)
+                    {
+                        if (textbox.contains(mouse_pos.X, mouse_pos.Y))
+                            textbox.set_Fill_color_rect(g.Color.Magenta);
+                        else
+                            textbox.set_Fill_color_rect(new g.Color(0, 255, 255));
                         Window.Draw(textbox);
+                    }
                     Window.Draw(nazvanie);
                 }
                 else
@@ -113,9 +126,9 @@ namespace Main
         }
         void settings()
         {
-            p.HPolzynok polzynok1 = new p.HPolzynok();
-            p.HPolzynok polzynok2 = new p.HPolzynok();
-            p.HPolzynok polzynok3 = new p.HPolzynok();
+            g.Text text=new g.Text();
+            foreach (p.HPolzynok polzynok in polzynoks)
+                Window.Draw(polzynok);
         }
     }
     class MainWindow
