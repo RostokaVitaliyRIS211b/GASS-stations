@@ -20,7 +20,13 @@ namespace Main
             {
                 menu.MenuLoop();
                 if(!menu.closed)
+                {
+                    MainWindow.count_of_cards = Menu.count_of_cards;
+                    MainWindow.count_of_players = Menu.count_of_players;
+                    MainWindow.size_of_colod = Menu.count_of_start_cards;
                     Game.GameLoop();
+                }
+                  
             }
             return 0;
         }
@@ -28,11 +34,16 @@ namespace Main
     class Menu
     {   
         g.RenderWindow Window;
-        static public int width_screen = 1280, height_screen = 720;
+        static public int width_screen = 1280, height_screen = 720,count_of_cards=50,count_of_start_cards=5,count_of_players=2;
         g.Text nazvanie = new g.Text { CharacterSize=48,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="KINGS OF GAS STATIONS",FillColor=g.Color.Black };
         scg.List<t.Textbox> textboxes = new scg.List<t.Textbox>();
+        t.Textbox exit_st = new t.Textbox();
         scg.List<p.HPolzynok> polzynoks = new scg.List<p.HPolzynok>();
+        static g.Font font = new g.Font("ofont.ru_Impact.ttf");
+        g.Text text = new g.Text { Font = font,CharacterSize = 28,FillColor = g.Color.Black};
         public bool closed = false,settings_fl = false;
+        g.Text message = new g.Text { DisplayedString = "Must be count cards > count players * count start cards",CharacterSize=36,Font=font,FillColor=g.Color.Black,Position=new s.Vector2f(40,40)};
+        s.Clock clock = new s.Clock();
         public Menu()
         {
            
@@ -52,6 +63,18 @@ namespace Main
             polzynok2.set_pos_polz(width_screen / 2, height_screen / 2);
             p.HPolzynok polzynok3 = new p.HPolzynok(ref polzynok1);
             polzynok3.set_pos_polz(width_screen / 2, height_screen / 2 + 150);
+
+            polzynok1.key = "1";
+            polzynok2.key = "2";
+            polzynok3.key = "3";
+
+            polzynok1.change_val_func(count_of_cards_func);
+            polzynok2.change_val_func(count_players_val);
+            polzynok3.change_val_func(count_of_starts_cards);
+
+            polzynok1.move(count_of_cards + (width_screen/2f) - 200f);
+            polzynok2.move(100f * count_of_players + width_screen / 2f - 200f);
+            polzynok3.move(count_of_start_cards + (width_screen / 2f) - 200f);
 
             polzynoks.Add(polzynok1);
             polzynoks.Add(polzynok2);
@@ -73,12 +96,15 @@ namespace Main
             t.Textbox textbox3 = new t.Textbox(ref textbox1);
             textbox3.set_string("EXIT");
             textbox3.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2+50));
+            exit_st.Copy(ref textbox3);
+            exit_st.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2 + 250));
             textboxes.Add(textbox1);
             textboxes.Add(textbox2);
             textboxes.Add(textbox3);
             Window = new g.RenderWindow(new w.VideoMode((uint)width_screen, (uint)height_screen), "Kings of gas stations");
             Window.MouseButtonPressed += Window_MouseButton_Pressed;
             Window.KeyPressed += Window_KeyPressed;
+            Window.MouseMoved += Window_MouseMoved;
             while (Window.IsOpen)
             {
                 s.Vector2i mouse_pos = w.Mouse.GetPosition(Window);
@@ -113,6 +139,27 @@ namespace Main
                 settings_fl = true;
             else if (textboxes[0].contains(e.X, e.Y) && !settings_fl)
                 Window.Close();
+            if (settings_fl && exit_st.contains(e.X, e.Y))
+                settings_fl = !settings_fl;
+        }
+        void Window_MouseMoved(object sender,w.MouseMoveEventArgs e)
+        {
+            if(settings_fl)
+            {
+                foreach(p.HPolzynok polzynok in polzynoks)
+                {
+                    if (polzynok.contains(e.X, e.Y))
+                        polzynok.set_Fillcolor_act(g.Color.Magenta);
+                    else
+                        polzynok.set_Fillcolor_act(g.Color.White);
+                    if (w.Mouse.IsButtonPressed(w.Mouse.Button.Left) && polzynok.contains(e.X, e.Y))
+                        polzynok.move(e.X);
+                }
+                if(exit_st.contains(e.X,e.Y))
+                    exit_st.set_Fill_color_rect(g.Color.Magenta);
+                else
+                    exit_st.set_Fill_color_rect(new g.Color(0, 255, 255));
+            }
         }
         void Window_KeyPressed(object sender,w.KeyEventArgs e)
         {
@@ -126,9 +173,55 @@ namespace Main
         }
         void settings()
         {
-            g.Text text=new g.Text();
+            text.DisplayedString = "COUNT OF CARDS = " + polzynoks[0].get_value().ToString();
+            text.Origin = new s.Vector2f(text.GetGlobalBounds().Width / 2f, text.GetGlobalBounds().Height / 2f + text.CharacterSize / 6f);// магические числа на
+            text.Position=new s.Vector2f(width_screen/2,height_screen/2-200);
+            count_of_cards = polzynoks[0].get_value();
+            Window.Draw(text);
+            text.DisplayedString = "COUNT OF PLAYERS = " + polzynoks[1].get_value().ToString();
+            text.Origin = new s.Vector2f(text.GetGlobalBounds().Width / 2f, text.GetGlobalBounds().Height / 2f + text.CharacterSize / 6f);// магические числа на
+            text.Position = new s.Vector2f(width_screen / 2, height_screen/2 - 50);
+            Window.Draw(text);
+            count_of_players = polzynoks[1].get_value();
+            text.DisplayedString = "COUNT OF START CARDS = " + polzynoks[2].get_value().ToString();
+            text.Origin = new s.Vector2f(text.GetGlobalBounds().Width / 2f, text.GetGlobalBounds().Height / 2f + text.CharacterSize / 6f);// магические числа на
+            text.Position = new s.Vector2f(width_screen / 2, height_screen/2+100);
+            count_of_start_cards = polzynoks[2].get_value();
+            Window.Draw(text);
             foreach (p.HPolzynok polzynok in polzynoks)
                 Window.Draw(polzynok);
+            if (clock.ElapsedTime.AsSeconds() < 1.5f)
+                Window.Draw(message);
+            Window.Draw(exit_st);
+        }
+        int count_players_val(float x)
+        {
+            int value = 0;
+            value = x >= 0  ? 1 : value;
+            value = x >= 100 ? 2 : value;
+            value = x >= 200 ? 3 : value;
+            value = x >= 300 ? 4 : value;
+            return value;
+        }
+        int count_of_starts_cards(float x)
+        {
+            int value = 0;
+            value = (int)x / 2;
+            return value;
+        }
+        int count_of_cards_func(float x)
+        {
+            int value = 1;
+            value += (int)x;
+            return value;
+        }
+        bool can_i_move(p.HPolzynok polzynok)
+        {
+            bool flag = true;
+            //flag = ((polzynoks[0].get_value() - polzynoks[1].get_value() * polzynoks[2].get_value()) > 0) ? false : flag;
+            //if (!flag)
+            //    clock.Restart();
+            return flag;
         }
     }
     class MainWindow
@@ -502,7 +595,7 @@ namespace Main
             else if (e.Code == w.Keyboard.Key.V && catchicng as c.Doroga != null)
             {
                 c.Doroga dorg = catchicng as c.Doroga;
-                sus.Console.WriteLine("way1 ={0},way2 ={1},way3 ={2},way4 ={3}", dorg.way1, dorg.way2, dorg.way3, dorg.way4);
+                //sus.Console.WriteLine("way1 ={0},way2 ={1},way3 ={2},way4 ={3}", dorg.way1, dorg.way2, dorg.way3, dorg.way4);
             }
             else if (e.Code == w.Keyboard.Key.M)
                 display_count_of_cards();
@@ -667,10 +760,10 @@ namespace Main
         }
         void display_count_of_cards()
         {
-            int i = 0;
-            foreach (scg.List<c.Card> cards in colods)
-                sus.Console.WriteLine("PLAYER {0} = {1}", ++i, cards.Count);
-            sus.Console.WriteLine("");
+            //int i = 0;
+            //foreach (scg.List<c.Card> cards in colods)
+            //    sus.Console.WriteLine("PLAYER {0} = {1}", ++i, cards.Count);
+            //sus.Console.WriteLine("");
         }
         void win()
         {

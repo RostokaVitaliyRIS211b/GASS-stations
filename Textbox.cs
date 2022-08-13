@@ -36,6 +36,17 @@ namespace Text
             set_size_rect(textbox.rect.Size);
             set_pos(textbox.rect.Position);
         }
+        public void Copy(ref Textbox textbox)
+        {
+            set_size_character_text((int)textbox.text.CharacterSize);
+            set_string(textbox.text.DisplayedString);
+            set_color_text(textbox.text.FillColor);
+            set_outline_color_rect(textbox.rect.OutlineColor);
+            set_outline_thickness_rect(textbox.rect.OutlineThickness);
+            set_Fill_color_rect(textbox.rect.FillColor);
+            set_size_rect(textbox.rect.Size);
+            set_pos(textbox.rect.Position);
+        }
         public void set_color_text(g.Color color)
         {
             text.FillColor=color;
@@ -62,7 +73,6 @@ namespace Text
             rect.Size = size;
             rect.Origin = new s.Vector2f(size.X / 2, size.Y / 2);
         }
-
         public void set_pos(float x, float y)
         {
             //sus.Console.WriteLine("rect {0} {1}", rect.Origin, rect.Size);

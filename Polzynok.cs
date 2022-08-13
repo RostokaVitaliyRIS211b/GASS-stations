@@ -16,13 +16,15 @@ namespace Polzet
         protected delegate int val(float x);
         protected coord mvf;
         protected val v;
-        protected float standart_func(float x)
+        public float act_pos=0;
+        public string key { get; set; }
+        protected float standart_func(float x)//передается координата относительно левого верхнего угла прямоугольника т.е от 0 до rect.Size.X
         {
-            return x >= 0 && x <= rect.Size.X ? x : active.Position.X;
+            return x >= 0 && x <= rect.Size.X ? x : active.Position.X-rect.Position.X+rect.Size.X/2;
         }
-        protected int vl(float x)
+        protected int vl(float x)//передается координата относительно левого верхнего угла прямоугольника т.е от 0 до rect.Size.X
         {
-            return (int)(x - rect.Position.X);
+            return (int)(x);
         }
         public HPolzynok()
         {
@@ -133,10 +135,11 @@ namespace Polzet
             v = new val(func);//очищаем делегат от всех прочих функций и заносим одну новую
             //sus.Console.WriteLine("Length {0}", mvf.GetInvocationList().Length);
         }
-        public void move(float x)//передается координата относительно левого верхнего угла прямоугольника т.е от 0 до rect.Size.X
+        public void move(float x)
         {
-            active.Position=new s.Vector2f(mvf(x)+rect.Position.X,active.Position.Y);
-            value = v(mvf(x));
+            active.Position=new s.Vector2f(mvf(x - rect.Position.X + rect.Size.X / 2) + rect.Position.X - rect.Size.X/2,active.Position.Y);
+            value = v(mvf(x - rect.Position.X + rect.Size.X / 2));
+            act_pos = active.Position.X;
         }
         public bool contains(s.Vector2i pos)
         {
