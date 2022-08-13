@@ -190,8 +190,8 @@ namespace Main
             Window.Draw(text);
             foreach (p.HPolzynok polzynok in polzynoks)
                 Window.Draw(polzynok);
-            if (clock.ElapsedTime.AsSeconds() < 1.5f)
-                Window.Draw(message);
+            //if (clock.ElapsedTime.AsSeconds() < 1.5f)
+            //    Window.Draw(message);
             Window.Draw(exit_st);
         }
         int count_players_val(float x)
@@ -315,6 +315,8 @@ namespace Main
                 }
             }
             Window = null;
+            way.Clear();
+            map.Clear();
         }
         void initialize_colods()
         {
