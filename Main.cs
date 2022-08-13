@@ -7,6 +7,7 @@ using scg = System.Collections.Generic;
 using l = Lines;
 using t = Text;
 using st = System.Threading;
+using p = Polzet;
 namespace Main
 {
     class ProgramMain
@@ -15,27 +16,26 @@ namespace Main
         {
             Menu menu = new Menu();
             MainWindow Game = new MainWindow();
-            Game.Window.Close();
             while(!menu.closed)
             {
                 menu.MenuLoop();
-                Game.GameLoop();
+                if(!menu.closed)
+                    Game.GameLoop();
             }
             return 0;
         }
     }
     class Menu
-    {
-        public g.RenderWindow Window;
+    {   
+        g.RenderWindow Window;
         static public int width_screen = 1280, height_screen = 720;
         g.Text nazvanie = new g.Text { CharacterSize=48,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="KINGS OF GAS STATIONS",FillColor=g.Color.Black };
         scg.List<t.Textbox> textboxes = new scg.List<t.Textbox>();
-        public bool closed = false;
+        scg.List<p.HPolzynok> polzynoks = new scg.List<p.HPolzynok>();
+        public bool closed = false,settings_fl = false;
         public Menu()
         {
-            Window = new g.RenderWindow(new w.VideoMode((uint)width_screen, (uint)height_screen), "Kings of gas stations");
-            //Window.MouseButtonPressed += Window_MouseButton_Pressed;
-            //Window.KeyPressed += Window_KeyPressed;
+           
         }
         public void MenuLoop()
         {
@@ -70,24 +70,52 @@ namespace Main
             textboxes.Add(textbox1);
             textboxes.Add(textbox2);
             textboxes.Add(textbox3);
-            while(Window.IsOpen)
+            Window = new g.RenderWindow(new w.VideoMode((uint)width_screen, (uint)height_screen), "Kings of gas stations");
+            Window.MouseButtonPressed += Window_MouseButton_Pressed;
+            Window.KeyPressed += Window_KeyPressed;
+            while (Window.IsOpen)
             {
                 Window.Clear(g.Color.White);
-                foreach (t.Textbox textbox in textboxes)
-                    Window.Draw(textbox);
-                Window.Draw(nazvanie);
+                if(!settings_fl)
+                {
+                    foreach (t.Textbox textbox in textboxes)
+                        Window.Draw(textbox);
+                    Window.Draw(nazvanie);
+                }
+                else
+                    settings();
                 Window.DispatchEvents();
-                sus.Console.WriteLine("DRAW");
                 Window.Display();
             }
+            Window = null;
         }
         void Window_MouseButton_Pressed(object sender,w.MouseButtonEventArgs e)
         {
-
+            if (textboxes[2].contains(e.X, e.Y) && !settings_fl)
+            {
+                Window.Close();
+                closed = true;
+            }
+            else if (textboxes[1].contains(e.X, e.Y) && !settings_fl)
+                settings_fl = true;
+            else if (textboxes[0].contains(e.X, e.Y) && !settings_fl)
+                Window.Close();
         }
         void Window_KeyPressed(object sender,w.KeyEventArgs e)
         {
-
+            if(e.Code==w.Keyboard.Key.Escape && !settings_fl)
+            {
+                Window.Close();
+                closed = true;
+            }
+            if (e.Code == w.Keyboard.Key.Escape && settings_fl)
+                settings_fl = false;
+        }
+        void settings()
+        {
+            p.HPolzynok polzynok1 = new p.HPolzynok();
+            p.HPolzynok polzynok2 = new p.HPolzynok();
+            p.HPolzynok polzynok3 = new p.HPolzynok();
         }
     }
     class MainWindow
@@ -96,7 +124,7 @@ namespace Main
         s.Vector2f catching_pos = new s.Vector2f();
         sus.Random rand = new sus.Random();
         static public int width_screen = 1280, height_screen = 720,count_of_players = 4,size_of_colod=3,player=1,count_of_cards=20;
-        public g.RenderWindow Window;
+        g.RenderWindow Window;
         scg.List<scg.List<c.Card>> colods = new scg.List<scg.List<c.Card>>();
         scg.List<c.Card> map = new scg.List<c.Card>();
         scg.List<c.Doroga> way = new scg.List<c.Doroga>();
@@ -114,14 +142,15 @@ namespace Main
         s.Vector2i mouse_pos1 = new s.Vector2i();
         public MainWindow()
         {
-            Window = new g.RenderWindow(new w.VideoMode((uint)width_screen,(uint)height_screen),"KING OF GAS STATIONS");
-            Window.MouseMoved += Window_MouseMoved;
-            Window.MouseButtonPressed +=Window_MouseButtonPressed;
-            Window.KeyPressed += Window_KeyPressed;
-            Window.MouseWheelScrolled += Window_MouseWheel;
+
         }
         public void GameLoop()
         {
+            Window = new g.RenderWindow(new w.VideoMode((uint)width_screen, (uint)height_screen), "KING OF GAS STATIONS");
+            Window.MouseMoved += Window_MouseMoved;
+            Window.MouseButtonPressed += Window_MouseButtonPressed;
+            Window.KeyPressed += Window_KeyPressed;
+            Window.MouseWheelScrolled += Window_MouseWheel;
             message.Position -= new s.Vector2f(message.GetGlobalBounds().Width/2, 0);
             initialize_colods();
             foreach (scg.List<c.Card> list in colods)
@@ -179,6 +208,7 @@ namespace Main
                     Window.Close();
                 }
             }
+            Window = null;
         }
         void initialize_colods()
         {
