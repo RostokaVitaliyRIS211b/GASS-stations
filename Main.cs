@@ -34,7 +34,7 @@ namespace Main
     class Menu
     {   
         g.RenderWindow Window;
-        static public int width_screen = 1280, height_screen = 720,count_of_cards=50,count_of_start_cards=5,count_of_players=2;
+        static public int width_screen = 1280, height_screen = 720,count_of_cards=50,count_of_start_cards=3,count_of_players=2;
         g.Text nazvanie = new g.Text { CharacterSize=48,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="KINGS OF GAS STATIONS",FillColor=g.Color.Black };
         scg.List<t.Textbox> textboxes = new scg.List<t.Textbox>();
         t.Textbox exit_st = new t.Textbox();
@@ -72,9 +72,17 @@ namespace Main
             polzynok2.change_val_func(count_players_val);
             polzynok3.change_val_func(count_of_starts_cards);
 
-            polzynok1.move(count_of_cards + (width_screen / 2f) - 200f);
-            polzynok2.move(100f * count_of_players + width_screen / 2f - 200f);
-            polzynok3.move(count_of_start_cards + (width_screen / 2f) - 200f);
+            polzynok1.change_start_func(co_of__ca_start);
+            polzynok2.change_start_func(co_of_p_start);
+            polzynok3.change_start_func(co_of_st_ca_start);
+
+            polzynok1.set_start_pos(count_of_cards);
+            polzynok2.set_start_pos(count_of_players);
+            polzynok3.set_start_pos(count_of_start_cards);
+
+            //polzynok1.move(count_of_cards + (width_screen / 2f) - 200f);
+            //polzynok2.move(100f * count_of_players + width_screen / 2f - 200f);
+            //polzynok3.move(count_of_start_cards + (width_screen / 2f) - 200f);
 
             polzynoks.Add(polzynok1);
             polzynoks.Add(polzynok2);
@@ -217,6 +225,21 @@ namespace Main
             value += (int)x;
             return value;
         }
+        float co_of_p_start(int value)
+        {
+            float x = value;
+            return x*100f+width_screen/2-200f;
+        }
+        float co_of_st_ca_start(int value)
+        {
+            float x = value;
+            return x * 2f + width_screen / 2 - 200f;
+        }
+        float co_of__ca_start(int value)
+        {
+            float x = value;
+            return x + width_screen / 2 - 200f;
+        }
         bool can_i_move(p.HPolzynok polzynok)
         {
             bool flag = true;
@@ -319,6 +342,9 @@ namespace Main
             Window = null;
             way.Clear();
             map.Clear();
+            foreach (scg.List<c.Card> list in colods)
+                list.Clear();
+            colods.Clear();
         }
         void initialize_colods()
         {

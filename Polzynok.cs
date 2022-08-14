@@ -14,8 +14,10 @@ namespace Polzet
         protected int value;
         protected delegate float coord(float x);
         protected delegate int val(float x);
+        protected delegate float start_pos(int val);
         protected coord mvf;
         protected val v;
+        protected start_pos start;
         public float act_pos=0;
         public string key { get; set; }
         protected float standart_func(float x)//передается координата относительно левого верхнего угла прямоугольника т.е от 0 до rect.Size.X
@@ -25,6 +27,10 @@ namespace Polzet
         protected int vl(float x)//передается координата относительно левого верхнего угла прямоугольника т.е от 0 до rect.Size.X
         {
             return (int)(x);
+        }
+        protected float start_standart_func(int value)
+        {
+            return value+rect.Position.X-rect.Size.X/2;
         }
         public HPolzynok()
         {
@@ -36,6 +42,7 @@ namespace Polzet
             active = new g.CircleShape();
             mvf += standart_func;
             v += vl;
+            start += start_standart_func;
             value = 0;
         }
         public HPolzynok(ref HPolzynok polzynok)
@@ -134,6 +141,15 @@ namespace Polzet
         {
             v = new val(func);//очищаем делегат от всех прочих функций и заносим одну новую
             //sus.Console.WriteLine("Length {0}", mvf.GetInvocationList().Length);
+        }
+        public void change_start_func(sus.Func<int,float> func)
+        {
+            start = new start_pos(func);
+        }
+        public void set_start_pos(int value)
+        {
+            this.value = value;
+            active.Position =new s.Vector2f(start(value),active.Position.Y);
         }
         public void move(float x)
         {
