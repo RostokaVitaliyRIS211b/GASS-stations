@@ -72,7 +72,7 @@ namespace Main
             polzynok2.change_val_func(count_players_val);
             polzynok3.change_val_func(count_of_starts_cards);
 
-            polzynok1.move(count_of_cards + (width_screen/2f) - 200f);
+            polzynok1.move(count_of_cards + (width_screen / 2f) - 200f);
             polzynok2.move(100f * count_of_players + width_screen / 2f - 200f);
             polzynok3.move(count_of_start_cards + (width_screen / 2f) - 200f);
 
@@ -127,6 +127,8 @@ namespace Main
                 Window.Display();
             }
             Window = null;
+            polzynoks.Clear();
+            textboxes.Clear();
         }
         void Window_MouseButton_Pressed(object sender,w.MouseButtonEventArgs e)
         {
