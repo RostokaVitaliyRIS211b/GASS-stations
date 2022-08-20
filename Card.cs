@@ -1,6 +1,6 @@
 ﻿using g = SFML.Graphics;
 using sus = System;
-using scg = System.Collections.Generic;
+using Save;
 namespace Cards
 {
     internal class Card : g.Drawable
@@ -20,11 +20,17 @@ namespace Cards
         }
         virtual public void Parse(string name) { }
         virtual public bool can_i_set (Card card) { return true; }
+        virtual public void load(SaveClass gay)
+        {
+            sprite = gay.sprite;
+            player = gay.player;
+        }
         public void Draw(g.RenderTarget target, g.RenderStates states)
         {
             target.Draw(sprite, states);
         }
     }
+    
     internal class Doroga : Card
     {
         public bool way1, way2, way3, way4;
@@ -154,7 +160,16 @@ namespace Cards
             sprite.Texture = new g.Texture(new g.Image(name));
             //sus.Console.WriteLine(name);
         }
+        public override void load(SaveClass gay)
+        {
+            base.load(gay);
+            way1 = gay.way1;
+            way2 = gay.way2;
+            way3 = gay.way3;
+            way4 = gay.way4;
+        }
     }
+    
     internal class GasStation : Card
     {
         public int level { get; set; }
@@ -206,7 +221,13 @@ namespace Cards
             if (name.Contains("3"))
                 level = 3;
         }
+        public override void load(SaveClass gay)
+        {
+            base.load(gay);
+            level = gay.level;
+        }
     }
+    
     internal class Trafic : Card
     {
         public Trafic() : base()

@@ -41,7 +41,7 @@ namespace Main
         scg.List<p.HPolzynok> polzynoks = new scg.List<p.HPolzynok>();
         static g.Font font = new g.Font("ofont.ru_Impact.ttf");
         g.Text text = new g.Text { Font = font,CharacterSize = 28,FillColor = g.Color.Black};
-        public bool closed = false,settings_fl = false;
+        public bool closed = false,settings_fl = false,load_save=false;
         g.Text message = new g.Text { DisplayedString = "Must be count cards > count players * count start cards",CharacterSize=36,Font=font,FillColor=g.Color.Black,Position=new s.Vector2f(40,40)};
         s.Clock clock = new s.Clock();
         public Menu()
@@ -631,6 +631,9 @@ namespace Main
                 display_count_of_cards();
             else if (e.Code == w.Keyboard.Key.D)
                 draw_grid = !draw_grid;
+            else if(e.Code==w.Keyboard.Key.S)
+                save();
+            
         }
         void create_coords_grid()
         {
@@ -832,5 +835,132 @@ namespace Main
             Window.Draw(win_text);
           
         }
+        void save()
+        {
+            
+        }
+        void load()
+        {
+
+        }
     }
+    //class Data
+    //{
+    //    public SaveClass catching { get; set; } = new SaveClass();
+    //    float x, y;
+    //    scg.List<SaveClass> map = new scg.List<SaveClass>();
+    //    scg.List<scg.List<SaveClass>> colods = new scg.List<scg.List<SaveClass>>();
+    //    scg.List<SaveClass> way = new scg.List<SaveClass>();
+    //    public int count_of_players = 4, size_of_colod = 3, player = 1, count_of_cards = 20;
+    //    public Data()
+    //    {
+    //        x = 0;y = 0;
+    //    }
+    //    public void save_catching_pos(s.Vector2f pos)
+    //    {
+    //        x = pos.X;
+    //        y = pos.Y;
+    //    }
+    //    public s.Vector2f get_catching_pos()
+    //    {
+    //        return new s.Vector2f(x, y);
+    //    }
+    //    public void save_map(scg.List<c.Card> map1)
+    //    {
+    //        foreach(c.Card card in map1)
+    //        {
+    //            SaveClass hoho = new SaveClass();
+    //            hoho.save_card(card);
+    //            map.Add(hoho);
+    //        }
+    //    }
+    //    public void save_colods(scg.List<scg.List<c.Card>> colods1)
+    //    {
+    //        foreach(scg.List<c.Card> list in colods1)
+    //        {
+    //            scg.List<SaveClass> hoho1 = new scg.List<SaveClass>();
+    //            foreach(c.Card card in list)
+    //            {
+    //                SaveClass hoho = new SaveClass();
+    //                hoho.save_card(card);
+    //                hoho1.Add(hoho);
+    //            }
+    //            colods.Add(hoho1);
+    //        }
+    //    }
+    //    public void save_way(scg.List<c.Card> way1)
+    //    {
+    //        foreach(c.Card card in way1)
+    //        {
+    //            SaveClass save = new SaveClass();
+    //            save.save_card(card);
+    //            way.Add(save);
+    //        }
+    //    }
+    //    public scg.List<c.Card> get_map()
+    //    {
+    //        scg.List<c.Card> map1 = new scg.List<c.Card>();
+    //        foreach(SaveClass save in map)
+    //        {
+    //            if(save.code==1)
+    //            {
+    //                c.Doroga dorg = new c.Doroga();
+    //                dorg.load(save);
+    //                map1.Add(dorg);
+    //            }
+    //            else if(save.code==2)
+    //            {
+    //                c.GasStation gas = new c.GasStation();
+    //                gas.load(save);
+    //                map1.Add(gas);
+    //            }
+    //        }
+    //        return map1;
+    //    }
+    //    public scg.List<scg.List<c.Card>> get_colods()
+    //    {
+    //        scg.List<scg.List<c.Card>> colods1 = new scg.List<scg.List<c.Card>>();
+    //        foreach(scg.List<SaveClass> list in colods)
+    //        {
+    //            scg.List<c.Card> colod = new scg.List<c.Card>();
+    //            foreach (SaveClass save in list)
+    //            {
+    //                if (save.code == 1)
+    //                {
+    //                    c.Doroga dorg = new c.Doroga();
+    //                    dorg.load(save);
+    //                    colod.Add(dorg);
+    //                }
+    //                else if (save.code == 2)
+    //                {
+    //                    c.GasStation gas = new c.GasStation();
+    //                    gas.load(save);
+    //                    colod.Add(gas);
+    //                }
+    //                else if(save.code==3)
+    //                {
+    //                    c.Trafic trafic = new c.Trafic();
+    //                    trafic.load(save);
+    //                    colod.Add(trafic);
+    //                }
+    //            }
+    //            colods1.Add(colod);
+    //        }
+    //        return colods1;
+    //    }
+    //    public scg.List<c.Card> get_way()
+    //    {
+    //        scg.List<c.Card> way1 = new scg.List<c.Card>();
+    //        foreach(SaveClass save in way)
+    //        {
+    //            if(save.code == 1)
+    //            {
+    //                c.Doroga doroga = new c.Doroga();
+    //                doroga.load(save);
+    //                way1.Add(doroga);
+    //            }
+    //        }
+    //        return way1;
+    //    }
+    //}
 }
