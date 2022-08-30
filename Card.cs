@@ -1,9 +1,9 @@
 ﻿using g = SFML.Graphics;
-using sus = System;
+using SFML.System;
 using Save;
 namespace Cards
 {
-    internal class Card : g.Drawable
+    public class Card : g.Drawable
     {
         
         public g.Sprite sprite { get; set; }
@@ -19,19 +19,15 @@ namespace Cards
             player = card.player;
         }
         virtual public void Parse(string name) { }
+        virtual public void load (SaveCard card) { player = card.player; sprite.Position = new Vector2f(card.x, card.y); }
         virtual public bool can_i_set (Card card) { return true; }
-        virtual public void load(SaveClass gay)
-        {
-            sprite = gay.sprite;
-            player = gay.player;
-        }
         public void Draw(g.RenderTarget target, g.RenderStates states)
         {
             target.Draw(sprite, states);
         }
     }
-    
-    internal class Doroga : Card
+
+    public class Doroga : Card
     {
         public bool way1, way2, way3, way4;
         public Doroga() : base() 
@@ -160,17 +156,24 @@ namespace Cards
             sprite.Texture = new g.Texture(new g.Image(name));
             //sus.Console.WriteLine(name);
         }
-        public override void load(SaveClass gay)
+        public override void load(SaveCard card)
         {
-            base.load(gay);
-            way1 = gay.way1;
-            way2 = gay.way2;
-            way3 = gay.way3;
-            way4 = gay.way4;
+            base.load(card);
+            way1 = card.way1;
+            way2 = card.way2;
+            way3 = card.way3;  
+            way4 = card.way4;
+            string name = "images/road";
+            name = way1 ? name + "_1" : name;
+            name = way2 ? name + "_2" : name;
+            name = way3 ? name + "_3" : name;
+            name = way4 ? name + "_4" : name;
+            name += ".png";
+            sprite.Texture = new g.Texture(new g.Image(name));
         }
     }
-    
-    internal class GasStation : Card
+
+    public class GasStation : Card
     {
         public int level { get; set; }
         public GasStation() : base()
@@ -221,14 +224,20 @@ namespace Cards
             if (name.Contains("3"))
                 level = 3;
         }
-        public override void load(SaveClass gay)
+        public override void load(SaveCard card)
         {
-            base.load(gay);
-            level = gay.level;
+            base.load(card);
+            level = card.level;
+            string name = $"images/gas_station_{level}_";
+            name = player == 1 ? name + "red" : name;
+            name = player == 2 ? name + "blue" : name;
+            name = player == 3 ? name + "green" : name;
+            name = player == 4 ? name + "orange" : name;
+            name += ".png";
+            sprite.Texture = new g.Texture(new g.Image(name));
         }
     }
-    
-    internal class Trafic : Card
+    public class Trafic : Card
     {
         public Trafic() : base()
         {
@@ -245,6 +254,11 @@ namespace Cards
         public override void Parse(string name)
         {
 
+        }
+        public override void load(SaveCard card)
+        {
+            base.load(card);
+            sprite.Texture = new g.Texture(new g.Image("images/car_stream.png"));
         }
     }
 }

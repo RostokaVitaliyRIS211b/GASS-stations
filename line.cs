@@ -4,7 +4,7 @@ using s = SFML.System;
 using sus = System;
 namespace Lines
 {
-    internal class Line:g.Drawable
+    public class Line:g.Drawable
     {
         public s.Vector2f point_one { get; set; }
         public s.Vector2f point_two { get; set; }

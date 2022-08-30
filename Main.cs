@@ -8,6 +8,12 @@ using l = Lines;
 using t = Text;
 using st = System.Threading;
 using p = Polzet;
+using io = System.IO;
+using System.Xml;
+using System.Xml.Serialization;
+using Save;
+using Cards;
+
 namespace Main
 {
     class ProgramMain
@@ -21,9 +27,14 @@ namespace Main
                 menu.MenuLoop();
                 if(!menu.closed)
                 {
-                    MainWindow.count_of_cards = Menu.count_of_cards;
-                    MainWindow.count_of_players = Menu.count_of_players;
-                    MainWindow.size_of_colod = Menu.count_of_start_cards;
+                    Game.count_of_cards = menu.count_of_cards;
+                    Game.count_of_players = menu.count_of_players;
+                    Game.size_of_colod = menu.count_of_start_cards;
+                    if(menu.load_save)//удалить это
+                    {
+                        Game.load(menu.filename);
+                        menu.load_save = false;
+                    }
                     Game.GameLoop();
                 }
                   
@@ -34,14 +45,17 @@ namespace Main
     class Menu
     {   
         g.RenderWindow Window;
-        static public int width_screen = 1280, height_screen = 720,count_of_cards=50,count_of_start_cards=3,count_of_players=2;
+        public string filename { get; protected set; } = "SUS";
+        public int width_screen = 1280, height_screen = 720,count_of_cards=50,count_of_start_cards=3,count_of_players=2;
         g.Text nazvanie = new g.Text { CharacterSize=48,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="KINGS OF GAS STATIONS",FillColor=g.Color.Black };
         scg.List<t.Textbox> textboxes = new scg.List<t.Textbox>();
         t.Textbox exit_st = new t.Textbox();
+        t.Textbox exit_sv = new t.Textbox();
         scg.List<p.HPolzynok> polzynoks = new scg.List<p.HPolzynok>();
+        scg.List<t.Textbox> saves_t = new scg.List<t.Textbox>();
         static g.Font font = new g.Font("ofont.ru_Impact.ttf");
         g.Text text = new g.Text { Font = font,CharacterSize = 28,FillColor = g.Color.Black};
-        public bool closed = false,settings_fl = false,load_save=false;
+        public bool closed = false,settings_fl = false,load_save=false,saves = false;
         g.Text message = new g.Text { DisplayedString = "Must be count cards > count players * count start cards",CharacterSize=36,Font=font,FillColor=g.Color.Black,Position=new s.Vector2f(40,40)};
         s.Clock clock = new s.Clock();
         public Menu()
@@ -103,21 +117,30 @@ namespace Main
             textbox2.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2-50));
             t.Textbox textbox3 = new t.Textbox(ref textbox1);
             textbox3.set_string("EXIT");
-            textbox3.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2+50));
+            textbox3.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2+150));
+            t.Textbox textbox4 = new t.Textbox(ref textbox1);
+            textbox4.set_string("SAVES");
+            textbox4.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2 + 50));
             exit_st.Copy(ref textbox3);
             exit_st.set_pos(new s.Vector2f(width_screen / 2, height_screen / 2 + 250));
+            exit_sv.Copy(ref textbox3);
+            exit_sv.set_size_character_text(26);
+            exit_sv.set_pos(new s.Vector2f(100, 50));
             textboxes.Add(textbox1);
             textboxes.Add(textbox2);
             textboxes.Add(textbox3);
+            textboxes.Add(textbox4);
+            init_saves();
             Window = new g.RenderWindow(new w.VideoMode((uint)width_screen, (uint)height_screen), "Kings of gas stations");
             Window.MouseButtonPressed += Window_MouseButton_Pressed;
             Window.KeyPressed += Window_KeyPressed;
             Window.MouseMoved += Window_MouseMoved;
+            Window.MouseWheelScrolled += Window_MouseWheelScrolled;
             while (Window.IsOpen)
             {
                 s.Vector2i mouse_pos = w.Mouse.GetPosition(Window);
                 Window.Clear(g.Color.White);
-                if(!settings_fl)
+                if (!settings_fl && !saves)
                 {
                     foreach (t.Textbox textbox in textboxes)
                     {
@@ -129,8 +152,10 @@ namespace Main
                     }
                     Window.Draw(nazvanie);
                 }
-                else
+                else if (settings_fl)
                     settings();
+                else if (saves)
+                    saves_draw();
                 Window.DispatchEvents();
                 Window.Display();
             }
@@ -140,17 +165,38 @@ namespace Main
         }
         void Window_MouseButton_Pressed(object sender,w.MouseButtonEventArgs e)
         {
-            if (textboxes[2].contains(e.X, e.Y) && !settings_fl)
+            if (textboxes[2].contains(e.X, e.Y) && !settings_fl && !saves)
             {
                 Window.Close();
                 closed = true;
             }
-            else if (textboxes[1].contains(e.X, e.Y) && !settings_fl)
+            else if (textboxes[3].contains(e.X, e.Y) && !settings_fl && !saves)
+                saves = true;
+            else if (textboxes[1].contains(e.X, e.Y) && !settings_fl && !saves)
                 settings_fl = true;
-            else if (textboxes[0].contains(e.X, e.Y) && !settings_fl)
+            else if (textboxes[0].contains(e.X, e.Y) && !settings_fl && !saves)
                 Window.Close();
-            if (settings_fl && exit_st.contains(e.X, e.Y))
+            else if (settings_fl && exit_st.contains(e.X, e.Y) && !saves)
                 settings_fl = !settings_fl;
+            else if (saves && exit_sv.contains(e.X, e.Y))
+                saves = false;
+            else if(saves)
+            {
+                foreach (var box in saves_t)
+                {
+                    if(box.contains(e.X,e.Y))
+                    {
+                        saves = false;
+                        load_save = true;
+                        filename = box.get_string();
+                        filename = "saves/" + filename;
+                        Window.Close();
+                        break;
+                    }
+                }
+            }
+
+
         }
         void Window_MouseMoved(object sender,w.MouseMoveEventArgs e)
         {
@@ -170,6 +216,13 @@ namespace Main
                 else
                     exit_st.set_Fill_color_rect(new g.Color(0, 255, 255));
             }
+            else if(saves)
+            {
+                foreach (t.Textbox textbox2 in saves_t.FindAll(textbox3 => !textbox3.contains(e.X, e.Y)))
+                    textbox2.set_Fill_color_rect(new g.Color(0, 255, 255));
+                t.Textbox textbox = saves_t.Find(textbox1 => textbox1.contains(e.X, e.Y));
+                textbox?.set_Fill_color_rect(g.Color.Magenta);
+            }
         }
         void Window_KeyPressed(object sender,w.KeyEventArgs e)
         {
@@ -180,6 +233,15 @@ namespace Main
             }
             if (e.Code == w.Keyboard.Key.Escape && settings_fl)
                 settings_fl = false;
+        }
+        void Window_MouseWheelScrolled(object sender, w.MouseWheelScrollEventArgs e)
+        {
+            if(saves)
+            {
+                scg.List<t.Textbox> saves_m = saves_t.FindAll(textbox=>textbox.get_string()!="EXIT");
+                foreach (t.Textbox textbox in saves_m)
+                    textbox.set_pos(new s.Vector2f(width_screen/2,textbox.get_position().Y + 30*e.Delta));
+            }
         }
         void settings()
         {
@@ -203,6 +265,31 @@ namespace Main
             //if (clock.ElapsedTime.AsSeconds() < 1.5f)
             //    Window.Draw(message);
             Window.Draw(exit_st);
+        }
+        void init_saves()
+        {
+            saves_t.Clear();
+            io.DirectoryInfo directory = new DirectoryInfo("C:/Users/Динозавр/source/repos/GASS stations/bin/Debug/net6.0/saves");
+            scg.List<string> names = new scg.List<string>();
+            saves_t.Add(exit_sv);
+            foreach (FileInfo fileInfo in directory.GetFiles())
+                names.Add(fileInfo.Name);
+            if (names.Count > 0)
+            {
+                foreach (string name in names)
+                {
+                    t.Textbox textbox = new t.Textbox(ref exit_sv);
+                    textbox.set_string(name);
+                    textbox.set_size_rect(new s.Vector2f(400, 70));
+                    textbox.set_pos(new s.Vector2f(width_screen / 2, saves_t[saves_t.Count - 1].get_position().Y + 100));
+                    saves_t.Add(textbox);
+                }
+            }
+        }
+        void saves_draw()
+        {
+            foreach (t.Textbox textbox in saves_t)
+                Window.Draw(textbox);
         }
         int count_players_val(float x)
         {
@@ -249,31 +336,33 @@ namespace Main
             return flag;
         }
     }
-    class MainWindow
+    public class MainWindow
     {
-        c.Card catchicng = null;
-        s.Vector2f catching_pos = new s.Vector2f();
+        public c.Card catchicng = null;
+        public s.Vector2f catching_pos = new s.Vector2f();
         sus.Random rand = new sus.Random();
-        static public int width_screen = 1280, height_screen = 720,count_of_players = 4,size_of_colod=3,player=1,count_of_cards=20;
+        public int width_screen = 1280, height_screen = 720,count_of_players = 4,size_of_colod=3,player=1,count_of_cards=20;
         g.RenderWindow Window;
-        scg.List<scg.List<c.Card>> colods = new scg.List<scg.List<c.Card>>();
-        scg.List<c.Card> map = new scg.List<c.Card>();
-        scg.List<c.Doroga> way = new scg.List<c.Doroga>();
-        scg.List<l.Line> grid = new scg.List<l.Line>();
-        t.Textbox textbox1 = new t.Textbox();
+        public scg.List<scg.List<c.Card>> colods = new scg.List<scg.List<c.Card>>();
+        public scg.List<c.Card> map = new scg.List<c.Card>();
+        public scg.List<c.Doroga> way = new scg.List<c.Doroga>();
+        public scg.List<l.Line> grid = new scg.List<l.Line>();
+        public t.Textbox textbox1 = new t.Textbox();
         s.Clock clock = new s.Clock();
-        g.Text message = new g.Text { CharacterSize=32,FillColor=g.Color.Black,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="You cannot choose this card to way",Position=new s.Vector2f(width_screen/2,height_screen/10) };
-        g.Sprite billy = new g.Sprite { Texture = new g.Texture(new g.Image("images/card zadnik.png")), Origin = new s.Vector2f(50, 50),Position =new s.Vector2f(60,120) };
-        g.Text text = new g.Text();
-        g.Text count = new g.Text();
+        s.Clock clocks = new();
+        public g.Text message_s = new g.Text { CharacterSize = 32, FillColor = g.Color.Black, Font = new g.Font("ofont.ru_Impact.ttf"), DisplayedString = "Game Saved" };
+        public g.Text message = new g.Text { CharacterSize=32,FillColor=g.Color.Black,Font=new g.Font("ofont.ru_Impact.ttf"),DisplayedString="You cannot choose this card to way" };
+        public g.Sprite billy = new g.Sprite { Texture = new g.Texture(new g.Image("images/card zadnik.png")), Origin = new s.Vector2f(50, 50),Position =new s.Vector2f(60,120) };
+        public g.Text text = new g.Text();
+        public g.Text count = new g.Text();
         g.Sprite zadnik = new g.Sprite(new g.Texture(new g.Image("images/zadnik.png")));
-        bool draw_grid = true;
+        public bool draw_grid = true;
         string [] jpgs = { "images/road_1_2_3_4.png", "images/road_1.png", "images/road_2.png", "images/road_3.png", "images/road_4.png", "images/road_1_2_3.png", "images/road_1_2_4.png", "images/road_1_2.png", "images/road_1_3.png", "images/road_2_3_4.png", "images/road_2_3.png", "images/road_2_4.png", "images/road_3_4.png", "images/road_1_4.png", "images/road_1_3_4.png", "images/car_stream.png" };
         string [] gasstations = { "images/gas_station_1_red.png", "images/gas_station_2_red.png", "images/gas_station_3_red.png", "images/gas_station_1_blue.png", "images/gas_station_2_blue.png", "images/gas_station_3_blue.png", "images/gas_station_1_green.png", "images/gas_station_2_green.png", "images/gas_station_3_green.png", "images/gas_station_1_orange.png", "images/gas_station_2_orange.png", "images/gas_station_3_orange.png" };
         s.Vector2i mouse_pos1 = new s.Vector2i();
         public MainWindow()
         {
-
+            message.Position = new s.Vector2f(width_screen / 2, height_screen / 10);
         }
         public void GameLoop()
         {
@@ -283,14 +372,20 @@ namespace Main
             Window.KeyPressed += Window_KeyPressed;
             Window.MouseWheelScrolled += Window_MouseWheel;
             message.Position -= new s.Vector2f(message.GetGlobalBounds().Width/2, 0);
-            initialize_colods();
+            message_s.Origin = new s.Vector2f(message_s.GetGlobalBounds().Width/2f, message_s.GetGlobalBounds().Height/2f + message_s.CharacterSize/6f);
+            message_s.Position = new s.Vector2f(width_screen / 2, height_screen / 2);
+            if(colods.Count==0)
+                initialize_colods();
             foreach (scg.List<c.Card> list in colods)
                 set_coords_colod(list);
-            c.Doroga start = new c.Doroga { player = 0, sprite = new g.Sprite(new g.Texture(new g.Image("images/road_1.png"))) };
-            start.sprite.Origin = new s.Vector2f(50, 50);
-            start.sprite.Position = new s.Vector2f(width_screen / 2, height_screen / 2);
-            start.Parse("1");
-            map.Add(start);
+            if(map.Count==0)
+            {
+                c.Doroga start = new c.Doroga { player = 0, sprite = new g.Sprite(new g.Texture(new g.Image("images/road_1.png"))) };
+                start.sprite.Origin = new s.Vector2f(50, 50);
+                start.sprite.Position = new s.Vector2f(width_screen / 2, height_screen / 2);
+                start.Parse("1");
+                map.Add(start);
+            }
             create_coords_grid();
             textbox1.set_string("GO!");
             textbox1.set_color_text(new g.Color(255,128,0));
@@ -329,6 +424,8 @@ namespace Main
                 Window.Draw(text);
                 Window.Draw(count);
                 Window.DispatchEvents();
+                if (clocks.ElapsedTime.AsSeconds() < 2)
+                    Window.Draw(message_s);
                 if (count_of_cards == 0)
                     win();
                 mouse_pos1 = w.Mouse.GetPosition(Window);
@@ -837,130 +934,105 @@ namespace Main
         }
         void save()
         {
-            
+            XmlSerializer serializer = new(typeof(SaveWindow));
+            string name = DateTime.Now.ToString();
+            name = name.Replace(".", " ");
+            name = name.Replace(":", " ");
+            name = "saves/Save " + name;
+            name += ".xml";
+            io.TextWriter writer = new io.StreamWriter(name);
+            SaveWindow homo = new();
+            if(catchicng is not null)
+            {
+                homo.catching.save_card(catchicng);
+                homo.x = catching_pos.X;
+                homo.y = catching_pos.Y;
+            }
+            List<SaveCard> map4 = new();
+            List<SaveCard> way4 = new();
+            List<List<SaveCard>> colods4 = new();
+            foreach(c.Card card in map)
+            {
+                SaveCard save = new();
+                save.save_card(card);
+                map4.Add(save);
+            }
+            foreach (c.Doroga card in way)
+            {
+                SaveCard save = new();
+                save.save_card(card);
+                way4.Add(save);
+            }
+            foreach(List<c.Card> list in colods)
+            {
+                List<SaveCard> oh = new();
+                foreach(c.Card card in list)
+                {
+                    SaveCard save = new();
+                    save.save_card(card);
+                    oh.Add(save);
+                }
+                colods4.Add(oh);
+            }
+            homo.map = map4;
+            homo.colods = colods4;
+            homo.way = way4;
+            homo.count_of_cards = count_of_cards;
+            homo.count_of_players = count_of_players;
+            homo.player = player;
+            clocks.Restart();
+            serializer.Serialize(writer, homo);
         }
-        void load()
+        public void load(string filename)
         {
-
+            XmlSerializer serializer = new(typeof(SaveWindow));
+            io.FileStream file = new(filename,io.FileMode.Open);
+            SaveWindow save = (SaveWindow) serializer.Deserialize(file);
+            player = save.player;
+            count_of_cards = save.count_of_cards;
+            count_of_players = save.count_of_players;
+            foreach(SaveCard scard in save.map)
+            {
+                c.Card? card=null;
+                card = scard.code == 1 ? new c.Doroga() : card;
+                card = scard.code == 2 ? new c.GasStation() : card;
+                card = scard.code == 3 ? new c.Trafic() : card;
+                card?.load(scard);
+                card.sprite.Origin = new s.Vector2f(50, 50);
+                map.Add(card ?? new c.Card());
+            }
+            foreach(SaveCard saveCard in save.way)
+            {
+                c.Doroga t = (Doroga)map.Find(card => card.sprite.Position == new s.Vector2f(saveCard.x, saveCard.y) && card is c.Doroga);
+                if (t is not null)
+                {
+                    t.set_detec_image();
+                    way.Add(t);
+                }
+            }
+            foreach(List<SaveCard> list in save.colods)
+            {
+                List<c.Card> colod = new();
+                foreach(SaveCard scard in list)
+                {
+                    c.Card? card = null;
+                    card = scard.code == 1 ? new c.Doroga() : card;
+                    card = scard.code == 2 ? new c.GasStation() : card;
+                    card = scard.code == 3 ? new c.Trafic() : card;
+                    card?.load(scard);
+                    card.sprite.Origin = new s.Vector2f(50, 50);
+                    colod.Add(card ?? new c.Card());
+                }
+                colods.Add(colod);
+            }
+            if(save.catching.code!=0)
+            {
+                catchicng = colods[player - 1].Find(card=>card.sprite.Position == new s.Vector2f(save.catching.x, save.catching.y));
+                catching_pos = new s.Vector2f(save.x,save.y);
+                if (catchicng is c.Trafic)
+                    catchicng.sprite.Texture = new g.Texture(new g.Image("images/car_stream_detected.png"));
+            }
+            update_dispayeld_pl_text();
         }
     }
-    //class Data
-    //{
-    //    public SaveClass catching { get; set; } = new SaveClass();
-    //    float x, y;
-    //    scg.List<SaveClass> map = new scg.List<SaveClass>();
-    //    scg.List<scg.List<SaveClass>> colods = new scg.List<scg.List<SaveClass>>();
-    //    scg.List<SaveClass> way = new scg.List<SaveClass>();
-    //    public int count_of_players = 4, size_of_colod = 3, player = 1, count_of_cards = 20;
-    //    public Data()
-    //    {
-    //        x = 0;y = 0;
-    //    }
-    //    public void save_catching_pos(s.Vector2f pos)
-    //    {
-    //        x = pos.X;
-    //        y = pos.Y;
-    //    }
-    //    public s.Vector2f get_catching_pos()
-    //    {
-    //        return new s.Vector2f(x, y);
-    //    }
-    //    public void save_map(scg.List<c.Card> map1)
-    //    {
-    //        foreach(c.Card card in map1)
-    //        {
-    //            SaveClass hoho = new SaveClass();
-    //            hoho.save_card(card);
-    //            map.Add(hoho);
-    //        }
-    //    }
-    //    public void save_colods(scg.List<scg.List<c.Card>> colods1)
-    //    {
-    //        foreach(scg.List<c.Card> list in colods1)
-    //        {
-    //            scg.List<SaveClass> hoho1 = new scg.List<SaveClass>();
-    //            foreach(c.Card card in list)
-    //            {
-    //                SaveClass hoho = new SaveClass();
-    //                hoho.save_card(card);
-    //                hoho1.Add(hoho);
-    //            }
-    //            colods.Add(hoho1);
-    //        }
-    //    }
-    //    public void save_way(scg.List<c.Card> way1)
-    //    {
-    //        foreach(c.Card card in way1)
-    //        {
-    //            SaveClass save = new SaveClass();
-    //            save.save_card(card);
-    //            way.Add(save);
-    //        }
-    //    }
-    //    public scg.List<c.Card> get_map()
-    //    {
-    //        scg.List<c.Card> map1 = new scg.List<c.Card>();
-    //        foreach(SaveClass save in map)
-    //        {
-    //            if(save.code==1)
-    //            {
-    //                c.Doroga dorg = new c.Doroga();
-    //                dorg.load(save);
-    //                map1.Add(dorg);
-    //            }
-    //            else if(save.code==2)
-    //            {
-    //                c.GasStation gas = new c.GasStation();
-    //                gas.load(save);
-    //                map1.Add(gas);
-    //            }
-    //        }
-    //        return map1;
-    //    }
-    //    public scg.List<scg.List<c.Card>> get_colods()
-    //    {
-    //        scg.List<scg.List<c.Card>> colods1 = new scg.List<scg.List<c.Card>>();
-    //        foreach(scg.List<SaveClass> list in colods)
-    //        {
-    //            scg.List<c.Card> colod = new scg.List<c.Card>();
-    //            foreach (SaveClass save in list)
-    //            {
-    //                if (save.code == 1)
-    //                {
-    //                    c.Doroga dorg = new c.Doroga();
-    //                    dorg.load(save);
-    //                    colod.Add(dorg);
-    //                }
-    //                else if (save.code == 2)
-    //                {
-    //                    c.GasStation gas = new c.GasStation();
-    //                    gas.load(save);
-    //                    colod.Add(gas);
-    //                }
-    //                else if(save.code==3)
-    //                {
-    //                    c.Trafic trafic = new c.Trafic();
-    //                    trafic.load(save);
-    //                    colod.Add(trafic);
-    //                }
-    //            }
-    //            colods1.Add(colod);
-    //        }
-    //        return colods1;
-    //    }
-    //    public scg.List<c.Card> get_way()
-    //    {
-    //        scg.List<c.Card> way1 = new scg.List<c.Card>();
-    //        foreach(SaveClass save in way)
-    //        {
-    //            if(save.code == 1)
-    //            {
-    //                c.Doroga doroga = new c.Doroga();
-    //                doroga.load(save);
-    //                way1.Add(doroga);
-    //            }
-    //        }
-    //        return way1;
-    //    }
-    //}
-}
+    }

@@ -1,20 +1,47 @@
-﻿using g = SFML.Graphics;
-using s = SFML.System;
-using sus = System;
+﻿using System.Xml.Serialization;
 using c = Cards;
+using System.Collections.Generic;
 namespace Save
 {
-    [sus.Serializable]
-    internal class SaveClass
+    public class SaveWindow
     {
-        public g.Sprite sprite { get; set; }
+        public SaveCard catching;
+        public float x, y;
+        public int count_of_players, size_of_colod , player , count_of_cards;
+        [XmlArrayItem]
+        public List<SaveCard> map;
+        [XmlArrayItem]
+        public List<List<SaveCard>> colods;
+        [XmlArrayItem]
+        public List<SaveCard> way;
+        public SaveWindow()
+        {
+            way = new();
+            colods = new();
+            map = new();
+            x = 0;
+            y = 0;
+            catching = new();
+            count_of_players = 0;
+            size_of_colod = 0;
+            player = 0;
+            count_of_cards = 0;
+        }
+    }
+    public class SaveCard
+    {
+        public float x, y;
         public int player { get; set; }
 
         public bool way1 = false, way2 = false, way3 = false, way4 = false;
-        public int level { get; set; } = 0;
+        public int level { get; set; }
+        public int color { get; set; }
         public int code { get; set; }
-        public SaveClass()
+        public SaveCard()
         {
+            level = 0;
+            x = 0;
+            y = 0;
             code = 0;
         }
         public void save_card(c.Card card)
@@ -22,7 +49,8 @@ namespace Save
             if(card as c.Doroga!=null)
             {
                 c.Doroga gay = card as c.Doroga;
-                sprite = gay.sprite;
+                x = gay.sprite.Position.X;
+                y = gay.sprite.Position.Y;
                 player = gay.player;
                 way1 = gay.way1;
                 way2 = gay.way2;
@@ -33,18 +61,21 @@ namespace Save
             else if(card as c.GasStation!=null)
             {
                 c.GasStation gay = card as c.GasStation;
-                sprite = gay.sprite;
+                x = gay.sprite.Position.X;
+                y = gay.sprite.Position.Y;
                 player = gay.player;
                 level = gay.level;
                 code = 2;
             }
             else if(card as c.Trafic!=null)
             {
-                c.Trafic trafic = card as c.Trafic;
-                sprite = trafic.sprite;
-                player = trafic.player;
+                c.Trafic gay = card as c.Trafic;
+                x = gay.sprite.Position.X;
+                y = gay.sprite.Position.Y;
+                player = gay.player;
                 code = 3;
             }
         }
     }
 }
+

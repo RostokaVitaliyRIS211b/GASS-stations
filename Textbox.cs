@@ -108,6 +108,10 @@ namespace Text
         {
             return rect.Size;
         }
+        public s.Vector2f get_position()
+        {
+            return rect.Position;
+        }
         public bool contains(float x,float y)
         {
             return rect.GetGlobalBounds().Contains(x, y);
