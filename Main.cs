@@ -30,7 +30,7 @@ namespace Main
                     Game.count_of_cards = menu.count_of_cards;
                     Game.count_of_players = menu.count_of_players;
                     Game.size_of_colod = menu.count_of_start_cards;
-                    if(menu.load_save)//удалить это
+                    if(menu.load_save)
                     {
                         Game.load(menu.filename);
                         menu.load_save = false;
