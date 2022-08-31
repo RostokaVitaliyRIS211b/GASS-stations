@@ -269,7 +269,7 @@ namespace Main
         void init_saves()
         {
             saves_t.Clear();
-            io.DirectoryInfo directory = new DirectoryInfo("C:/Users/Динозавр/source/repos/GASS stations/bin/Debug/net6.0/saves");
+            io.DirectoryInfo directory = new DirectoryInfo(io.Directory.GetCurrentDirectory()+"/saves");
             scg.List<string> names = new scg.List<string>();
             saves_t.Add(exit_sv);
             foreach (FileInfo fileInfo in directory.GetFiles())
