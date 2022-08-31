@@ -887,8 +887,8 @@ namespace Main
                 add_cards_to_colod(1, colods[stations[0].player - 1], stations[0].player);
                 --count_of_cards;
             }
+            count.DisplayedString = count_of_cards.ToString();
         }
-                
         void increase_player()
         {
             ++player;
