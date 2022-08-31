@@ -865,15 +865,30 @@ namespace Main
                 scg.List<c.GasStation> stations_level_2 = stations.FindAll(card1 => card1.level == 2);
                 scg.List<c.GasStation> stations_level_1 = stations.FindAll(card1 => card1.level == 1);
                 if(stations_level_3.Count == 1)
+                {
                     add_cards_to_colod(1, colods[stations_level_3[0].player - 1], stations_level_3[0].player);
+                    --count_of_cards;
+                }
                 else if(stations_level_3.Count==0 && stations_level_2.Count==1)
+                {
                     add_cards_to_colod(1, colods[stations_level_2[0].player - 1], stations_level_2[0].player);
+                    --count_of_cards;
+                }
                 else if(stations_level_3.Count == 0 && stations_level_2.Count == 0 && stations_level_1.Count==1)
+                {
                     add_cards_to_colod(1, colods[stations_level_1[0].player - 1], stations_level_1[0].player);
+                    --count_of_cards;
+                }
+                   
+                
             }
             else if(stations.Count==1)
+            {
                 add_cards_to_colod(1, colods[stations[0].player - 1], stations[0].player);
+                --count_of_cards;
+            }
         }
+                
         void increase_player()
         {
             ++player;
@@ -1035,4 +1050,4 @@ namespace Main
             update_dispayeld_pl_text();
         }
     }
-    }
+}
