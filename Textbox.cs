@@ -1,6 +1,6 @@
 ﻿using g = SFML.Graphics;
 using s = SFML.System;
-using sus = System;
+using System;
 namespace Text
 {
     public class Textbox: g.Drawable
@@ -13,11 +13,11 @@ namespace Text
             rect = new g.RectangleShape();
             text = new g.Text();
             text.OutlineThickness = 0;
-            font = new g.Font("C:/Users/Динозавр/source/repos/tie-toe/tie-toe/ofont.ru_Impact.ttf"); text.Font = font; 
+            font = new g.Font(Directory.GetCurrentDirectory()+"/ofont.ru_Impact.ttf"); text.Font = font; 
         }
         public Textbox(g.RectangleShape rect, g.Text text, g.Font font)
         {
-            font = new g.Font("C:/Users/Динозавр/source/repos/tie-toe/tie-toe/ofont.ru_Impact.ttf"); text.Font = font;
+            font = new g.Font(Directory.GetCurrentDirectory()+"/ofont.ru_Impact.ttf"); text.Font = font;
             this.rect = rect;
             this.text = text;
             this.font = font;
@@ -26,7 +26,7 @@ namespace Text
         {
             rect = new g.RectangleShape();
             text = new g.Text();
-            font = new g.Font("C:/Users/Динозавр/source/repos/tie-toe/tie-toe/ofont.ru_Impact.ttf"); text.Font = font;
+            font = new g.Font(Directory.GetCurrentDirectory()+"/ofont.ru_Impact.ttf"); text.Font = font;
             set_size_character_text((int)textbox.text.CharacterSize);
             set_string(textbox.text.DisplayedString);
             set_color_text(textbox.text.FillColor);
