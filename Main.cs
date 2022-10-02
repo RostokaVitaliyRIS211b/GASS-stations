@@ -500,8 +500,6 @@ namespace Main
                 if (catchicng != null)
                     catchicng.sprite.Scale += scale;
             }
-           
-          
         }
         void Window_MouseMoved(object sender,w.MouseMoveEventArgs e)
         {
@@ -675,9 +673,11 @@ namespace Main
                     }
                 }
             }
-            else if (e.Button == w.Mouse.Button.Right && catchicng != null)
+            else if (e.Button == w.Mouse.Button.Right && catchicng is not null && catchicng as Doroga!=null)
             {
                 catchicng.sprite.Rotation += 90;
+                Doroga g = catchicng as Doroga;
+                g.rotate();
                 if (catchicng.sprite.Rotation == 360)
                     catchicng.sprite.Rotation = 0;
             }
